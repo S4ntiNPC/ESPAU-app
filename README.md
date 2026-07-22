@@ -34,3 +34,59 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+```
+espau-app
+├─ AGENTS.md
+├─ CLAUDE.md
+├─ eslint.config.mjs
+├─ next.config.ts
+├─ package-lock.json
+├─ package.json
+├─ postcss.config.mjs
+├─ public
+│  ├─ file.svg
+│  ├─ globe.svg
+│  ├─ next.svg
+│  ├─ vercel.svg
+│  └─ window.svg
+├─ README.md
+├─ src
+│  ├─ app
+│  │  ├─ admin
+│  │  │  ├─ actions
+│  │  │  │  └─ accionesPaciente.ts
+│  │  │  ├─ actions.ts
+│  │  │  └─ dashboard
+│  │  │     ├─ AsignarPacienteForm.tsx
+│  │  │     ├─ ListaUsuarios.tsx
+│  │  │     ├─ NuevoUsuarioForm.tsx
+│  │  │     └─ page.tsx
+│  │  ├─ dashboard
+│  │  │  └─ page.tsx
+│  │  ├─ familia
+│  │  │  ├─ actividad
+│  │  │  │  └─ [id]
+│  │  │  │     └─ page.tsx
+│  │  │  └─ mis-actividades
+│  │  │     ├─ ActividadCard.tsx
+│  │  │     └─ page.tsx
+│  │  ├─ globals.css
+│  │  ├─ layout.tsx
+│  │  ├─ login
+│  │  │  ├─ actions.ts
+│  │  │  └─ page.tsx
+│  │  ├─ page.tsx
+│  │  └─ terapeuta
+│  │     └─ panel
+│  │        ├─ DirectorioPacientes.tsx
+│  │        └─ page.tsx
+│  ├─ middleware.ts
+│  └─ utils
+│     └─ supabase
+│        ├─ client.ts
+│        └─ server.ts
+├─ tailwind.config.ts
+└─ tsconfig.json
+
+```
