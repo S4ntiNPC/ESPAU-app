@@ -3,7 +3,6 @@ import { logout } from '../../login/actions'
 import { redirect } from 'next/navigation'
 import ActividadCard from './ActividadCard'
 
-// 1. Interfaces estrictas que coinciden exactamente con lo que espera ActividadCard
 interface BancoActividadesInfo {
   titulo: string;
   explicacion: string;
@@ -14,7 +13,6 @@ interface ActividadAsignada {
   id: string;
   estado: 'pendiente' | 'completada' | 'incompleta';
   fecha_asignada: string;
-  // Puede ser un objeto individual, un arreglo o nulo dependiendo de la relación en Supabase
   banco_actividades: BancoActividadesInfo | BancoActividadesInfo[] | null;
 }
 
@@ -27,11 +25,9 @@ interface Paciente {
 export default async function FamiliaMisActividades() {
   const supabase = await createClient()
   
-  // 2. Verificamos la sesión
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
-  // 3. Buscamos al paciente asociado a esta familia y sus actividades.
   const { data, error } = await supabase
     .from('pacientes')
     .select(`
@@ -51,10 +47,8 @@ export default async function FamiliaMisActividades() {
     .eq('familia_id', user.id)
     .single();
 
-  // Forzamos el tipado de los datos devueltos por Supabase a nuestra interfaz
   const paciente = data as unknown as Paciente;
 
-  // Si hay error (ej. la familia no tiene un paciente asignado aún)
   if (error || !paciente) {
     return (
       <main className="min-h-screen bg-blue-50 p-4 md:p-8 flex items-center justify-center">
@@ -71,14 +65,14 @@ export default async function FamiliaMisActividades() {
     );
   }
 
-  // 4. Filtramos y ordenamos las actividades de forma segura
+  // Ordenar cronológicamente (más recientes primero)
   const actividades = paciente.actividades_asignadas || [];
-  const actividadesPendientes = actividades.filter(a => a.estado === 'pendiente' || a.estado === 'incompleta');
-  const actividadesCompletadas = actividades.filter(a => a.estado === 'completada');
-  
-  const todasLasActividades = [...actividadesPendientes, ...actividadesCompletadas];
+  actividades.sort((a, b) => new Date(b.fecha_asignada).getTime() - new Date(a.fecha_asignada).getTime());
 
-  // Función auxiliar para normalizar los datos antes de enviarlos al componente hijo
+  // Separar listas
+  const pendientes = actividades.filter(a => a.estado === 'pendiente' || a.estado === 'incompleta');
+  const completadas = actividades.filter(a => a.estado === 'completada');
+
   const normalizarActividad = (act: ActividadAsignada) => {
     let bancoInfo = null;
     if (act.banco_actividades) {
@@ -86,7 +80,6 @@ export default async function FamiliaMisActividades() {
         ? act.banco_actividades[0] 
         : act.banco_actividades;
     }
-    
     return {
       id: act.id,
       estado: act.estado,
@@ -96,9 +89,8 @@ export default async function FamiliaMisActividades() {
 
   return (
     <main className="min-h-screen bg-blue-50 p-4 md:p-8">
-      <div className="max-w-md mx-auto md:max-w-2xl bg-white rounded-2xl shadow-sm overflow-hidden">
+      <div className="max-w-md mx-auto md:max-w-2xl bg-white rounded-2xl shadow-sm overflow-hidden pb-8">
         
-        {/* Cabecera amigable - Mobile First */}
         <header className="bg-blue-600 p-6 text-white flex justify-between items-start">
           <div>
             <h1 className="text-2xl font-bold">¡Hola! 👋</h1>
@@ -114,26 +106,35 @@ export default async function FamiliaMisActividades() {
         </header>
 
         <div className="p-6">
-          <h2 className="font-semibold text-gray-700 mb-4 text-lg">Actividades Asignadas</h2>
-          
-          {/* Renderizado dinámico con tipado seguro */}
-          {todasLasActividades.length === 0 ? (
-            <div className="text-center py-8 bg-blue-50/50 rounded-xl border-2 border-dashed border-blue-100">
-              <p className="text-gray-500">No hay actividades asignadas por el momento.</p>
-              <p className="text-sm text-gray-400 mt-1">¡Tómense un merecido descanso!</p>
-            </div>
-          ) : (
-            <div className="space-y-3">
-              {todasLasActividades.map((actividad) => (
-                <ActividadCard 
-                  key={actividad.id} 
-                  actividad={normalizarActividad(actividad)} 
-                />
-              ))}
-            </div>
+          {/* SECCIÓN 1: PENDIENTES */}
+          <section className="mb-8">
+            <h2 className="font-semibold text-gray-700 mb-4 text-lg">Actividades Asignadas</h2>
+            {pendientes.length === 0 ? (
+              <div className="text-center py-8 bg-blue-50/50 rounded-xl border-2 border-dashed border-blue-100">
+                <p className="text-gray-500">No hay actividades asignadas por el momento.</p>
+                <p className="text-sm text-gray-400 mt-1">¡Tómense un merecido descanso!</p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {pendientes.map((actividad) => (
+                  <ActividadCard key={actividad.id} actividad={normalizarActividad(actividad)} />
+                ))}
+              </div>
+            )}
+          </section>
+
+          {/* SECCIÓN 2: COMPLETADAS */}
+          {completadas.length > 0 && (
+            <section>
+              <h2 className="font-semibold text-gray-700 mb-4 text-lg border-t pt-6">Actividades Completadas</h2>
+              <div className="space-y-3 opacity-80">
+                {completadas.map((actividad) => (
+                  <ActividadCard key={actividad.id} actividad={normalizarActividad(actividad)} />
+                ))}
+              </div>
+            </section>
           )}
 
-          {/* Área para el futuro sistema de rachas (Fase 2) */}
           <div className="mt-8 p-4 bg-orange-50 rounded-xl border border-orange-100 text-center">
             <p className="text-orange-600 font-medium text-sm">
               🔥 Próximamente: ¡Aquí verás tus rachas y niveles!

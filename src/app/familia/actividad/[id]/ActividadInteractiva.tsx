@@ -2,8 +2,10 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { ArrowLeft, Upload, CheckCircle2, Video, FileText, Loader2 } from 'lucide-react'
+import { ArrowLeft, Video, FileText, CheckCircle2 } from 'lucide-react'
 import { createClient } from '../../../../utils/supabase/client'
+import CargaEvidencia from './CargaEvidencia'
+import FormularioSalida from './FormularioSalida'
 
 // Interfaces estrictas
 interface BancoInfo {
@@ -11,7 +13,7 @@ interface BancoInfo {
   explicacion: string;
   tips_extra: string | null;
   apoyos_visuales_url: string | null;
-  pregunta_validacion: string | null; // NUEVO CAMPO
+  pregunta_validacion: string | null; 
 }
 
 interface Props {
@@ -25,42 +27,61 @@ export default function ActividadInteractiva({ actividadId, instruccionesPersona
   const supabase = createClient()
   
   // Estados del flujo
-  const [paso, setPaso] = useState(1) // 1: Instrucciones, 2: Formulario, 3: Éxito
+  const [paso, setPaso] = useState(1) // 1: Instrucciones, 2: Formulario y Evidencia, 3: Éxito
   
-  // Estados del formulario de salida
-  const [quienRealizo, setQuienRealizo] = useState('')
-  const [comoSeSintio, setComoSeSintio] = useState('')
-  const [respuestaValidacion, setRespuestaValidacion] = useState('') // NUEVO ESTADO
+  // Estado para la evidencia multimedia
+  const [evidenciaFile, setEvidenciaFile] = useState<File | null>(null)
   
+  // Estados de carga y error
   const [guardando, setGuardando] = useState(false)
   const [error, setError] = useState('')
 
-  const handleEnviarEvidencia = async () => {
-    // Validación de las 3 preguntas (La tercera es obligatoria solo si el terapeuta la configuró)
-    if (!quienRealizo || !comoSeSintio || (bancoInfo.pregunta_validacion && !respuestaValidacion.trim())) {
-      setError('Por favor, responde todas las preguntas para poder avanzar y registrar tu progreso.')
-      return
-    }
-
+  // Handler que recibe los datos desde el componente FormularioSalida
+  const handleEnviarEvidencia = async (datosFormulario: { quienRealizo: string; comoSeSintio: string; validacion: string }) => {
     setGuardando(true)
     setError('')
 
     try {
-      // Actualizamos el registro en la base de datos
+      let evidenciaUrl: string | null = null;
+
+      // 1. Si el usuario adjuntó un archivo, lo subimos al Storage de Supabase
+      // (Asegúrate de crear un bucket llamado 'evidencias' en tu proyecto de Supabase)
+      if (evidenciaFile) {
+        const fileExt = evidenciaFile.name.split('.').pop();
+        const fileName = `${actividadId}-${Date.now()}.${fileExt}`;
+        
+        const { error: uploadError } = await supabase.storage
+          .from('evidencias')
+          .upload(fileName, evidenciaFile);
+
+        if (uploadError) {
+          throw new Error('No se pudo subir el archivo de evidencia. Intenta de nuevo.');
+        }
+
+        // Obtenemos la URL pública del archivo subido
+        const { data: publicUrlData } = supabase.storage
+          .from('evidencias')
+          .getPublicUrl(fileName);
+          
+        evidenciaUrl = publicUrlData.publicUrl;
+      }
+
+      // 2. Actualizamos el registro de la actividad en la base de datos
       const { error: updateError } = await supabase
         .from('actividades_asignadas')
         .update({ 
           estado: 'completada',
-          quien_realizo: quienRealizo,
-          como_se_sintio: comoSeSintio,
-          respuesta_validacion: respuestaValidacion.trim() || null, // GUARDAMOS LA RESPUESTA
+          quien_realizo: datosFormulario.quienRealizo,
+          como_se_sintio: datosFormulario.comoSeSintio,
+          respuesta_validacion: datosFormulario.validacion.trim(),
+          evidencia_url: evidenciaUrl,
           fecha_completada: new Date().toISOString()
         })
         .eq('id', actividadId)
 
       if (updateError) throw new Error(updateError.message)
 
-      // Si todo sale bien, pasamos a la pantalla de éxito
+      // 3. Si todo sale bien, pasamos a la pantalla de éxito
       setPaso(3)
       router.refresh() 
       
@@ -77,13 +98,13 @@ export default function ActividadInteractiva({ actividadId, instruccionesPersona
   // PANTALLA 3: ÉXITO
   if (paso === 3) {
     return (
-      <div className="min-h-screen bg-green-50 flex flex-col items-center justify-center p-6 text-center">
-        <CheckCircle2 className="w-24 h-24 text-green-500 mb-6 animate-bounce" />
-        <h1 className="text-3xl font-bold text-green-800 mb-2">¡Excelente trabajo!</h1>
-        <p className="text-green-600 mb-8">El terapeuta ha recibido tu actualización. Cada pequeño paso es un gran avance.</p>
+      <div className="min-h-screen bg-[#F4F7FF] flex flex-col items-center justify-center p-6 text-center">
+        <CheckCircle2 className="w-24 h-24 text-blue-600 mb-6 animate-bounce" />
+        <h1 className="text-3xl font-bold text-gray-900 mb-2">¡Excelente trabajo!</h1>
+        <p className="text-gray-600 mb-8 max-w-sm">El terapeuta ha recibido tu actualización. Cada pequeño paso es un gran avance.</p>
         <button 
           onClick={() => router.push('/familia/mis-actividades')}
-          className="bg-green-600 text-white px-8 py-3 rounded-full font-medium hover:bg-green-700 w-full max-w-xs transition-colors"
+          className="bg-blue-600 text-white px-8 py-4 rounded-xl font-medium hover:bg-blue-700 w-full max-w-xs transition-colors shadow-md"
         >
           Volver a mis actividades
         </button>
@@ -95,7 +116,11 @@ export default function ActividadInteractiva({ actividadId, instruccionesPersona
     <div className="min-h-screen bg-gray-50 pb-24">
       {/* Header fijo */}
       <header className="bg-white sticky top-0 z-10 border-b border-gray-200 px-4 py-4 flex items-center gap-3 shadow-sm">
-        <button onClick={() => router.push('/familia/mis-actividades')} className="p-2 -ml-2 rounded-full hover:bg-gray-100 transition-colors">
+        <button 
+          onClick={() => router.push('/familia/mis-actividades')} 
+          className="p-2 -ml-2 rounded-full hover:bg-gray-100 transition-colors"
+          aria-label="Volver"
+        >
           <ArrowLeft className="w-6 h-6 text-gray-700" />
         </button>
         <h1 className="font-bold text-gray-900 truncate">Detalle de Actividad</h1>
@@ -120,11 +145,11 @@ export default function ActividadInteractiva({ actividadId, instruccionesPersona
                 className="flex items-center justify-center gap-2 w-full bg-blue-100 text-blue-700 py-3 px-4 rounded-xl font-semibold hover:bg-blue-200 transition-colors shadow-sm"
               >
                 <Video className="w-5 h-5" />
-                Ver apoyo visual / Video
+                Ver apoyo visual
               </a>
             )}
 
-            {/* Mostramos tips extra del banco O instrucciones personalizadas del terapeuta */}
+            {/* Mensajes adicionales / Tips extra */}
             {(bancoInfo.tips_extra || instruccionesPersonalizadas) && (
               <div className="bg-blue-50 border border-blue-100 rounded-2xl p-5">
                 <div className="flex items-center gap-2 mb-2">
@@ -149,104 +174,36 @@ export default function ActividadInteractiva({ actividadId, instruccionesPersona
           </div>
         )}
 
-        {/* PASO 2: Evidencia y Preguntas de Salida */}
+        {/* PASO 2: Evidencia y Preguntas de Salida integradas */}
         {paso === 2 && (
-          <div className="space-y-8 animate-in fade-in slide-in-from-right-4">
+          <div className="space-y-8 animate-in fade-in slide-in-from-right-4 pt-2">
             
+            {/* Mensaje de error general si la subida/guardado falla */}
             {error && (
-              <div className="bg-red-50 text-red-600 p-4 rounded-xl text-sm font-medium border border-red-100">
-                {error}
+              <div className="bg-red-50 text-red-600 p-4 rounded-xl text-sm font-medium border border-red-100 flex items-start gap-2">
+                <svg className="w-5 h-5 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span>{error}</span>
               </div>
             )}
 
-            <section>
-              <h3 className="font-bold text-gray-900 mb-3 text-lg">1. Sube tu evidencia (Opcional)</h3>
-              <p className="text-sm text-gray-500 mb-4">Graba directamente o sube un archivo corto.</p>
-              
-              <label className="border-2 border-dashed border-gray-300 bg-white rounded-2xl p-8 flex flex-col items-center justify-center gap-3 cursor-pointer hover:bg-gray-50 transition-colors">
-                <div className="bg-blue-100 p-3 rounded-full">
-                  <Video className="w-8 h-8 text-blue-600" />
-                </div>
-                <div className="text-center">
-                  <span className="text-blue-600 font-medium">Toca para seleccionar</span>
-                </div>
-                <input type="file" accept="video/*,image/*" className="hidden" onChange={() => console.log("Archivo seleccionado en MVP")} />
-              </label>
-            </section>
+            {/* 1. Componente Modular de Carga de Evidencia */}
+            <CargaEvidencia onFileSelected={setEvidenciaFile} />
 
-            <hr className="border-gray-200" />
-
-            <section className="space-y-6">
-              <h3 className="font-bold text-gray-900 text-lg">2. Preguntas de salida</h3>
-              
-              {/* Pregunta 1 */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">¿Quién realizó la actividad con el niño? *</label>
-                <select 
-                  value={quienRealizo}
-                  onChange={(e) => setQuienRealizo(e.target.value)}
-                  className="w-full bg-white border border-gray-300 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500 text-gray-700"
-                >
-                  <option value="">Selecciona una opción</option>
-                  <option value="Mamá">Mamá</option>
-                  <option value="Papá">Papá</option>
-                  <option value="Abuelo/a">Abuelo/a</option>
-                  <option value="Tío/a">Tío/a</option>
-                  <option value="Otro">Otro cuidador</option>
-                </select>
+            <div className="relative py-2">
+              <div className="absolute inset-0 flex items-center" aria-hidden="true">
+                <div className="w-full border-t border-gray-200"></div>
               </div>
+            </div>
 
-              {/* Pregunta 2 */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">¿Cómo te sentiste durante el ejercicio? *</label>
-                <div className="flex justify-between gap-2">
-                  {['Frustrado', 'Normal', 'Feliz', 'Excelente'].map((emocion) => (
-                    <button 
-                      key={emocion} 
-                      onClick={() => setComoSeSintio(emocion)}
-                      className={`flex-1 py-2 px-1 border rounded-lg text-xs font-medium transition-colors ${
-                        comoSeSintio === emocion 
-                          ? 'bg-blue-100 border-blue-500 text-blue-800 ring-2 ring-blue-500 ring-offset-1' 
-                          : 'border-gray-200 bg-white text-gray-600 hover:border-blue-300'
-                      }`}
-                    >
-                      {emocion}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Pregunta 3 (Condicional) */}
-              {bancoInfo.pregunta_validacion && (
-                <div className="bg-blue-50 p-5 rounded-xl border border-blue-100">
-                  <label className="block text-sm font-semibold text-blue-900 mb-2">
-                    {bancoInfo.pregunta_validacion} *
-                  </label>
-                  <textarea 
-                    value={respuestaValidacion}
-                    onChange={(e) => setRespuestaValidacion(e.target.value)}
-                    placeholder="Escribe tu respuesta aquí..."
-                    className="w-full bg-white border border-blue-200 rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500 text-gray-700 resize-none h-24"
-                  />
-                </div>
-              )}
-            </section>
-
-            <button 
-              onClick={handleEnviarEvidencia}
-              disabled={guardando}
-              className="w-full bg-blue-600 text-white py-4 rounded-xl font-medium shadow-md shadow-blue-200 mt-4 flex items-center justify-center gap-2 hover:bg-blue-700 transition-colors disabled:opacity-70"
-            >
-              {guardando ? (
-                <>
-                  <Loader2 className="w-5 h-5 animate-spin" /> Guardando...
-                </>
-              ) : (
-                <>
-                  <Upload className="w-5 h-5" /> Enviar y Finalizar
-                </>
-              )}
-            </button>
+            {/* 2. Componente Modular de Preguntas (Incluye el botón final) */}
+            <FormularioSalida 
+              onSubmit={handleEnviarEvidencia}
+              isSubmitting={guardando}
+              // NUEVO: Pasamos la pregunta específica de esta actividad
+              preguntaValidacion={bancoInfo.pregunta_validacion}
+            />
           </div>
         )}
       </main>

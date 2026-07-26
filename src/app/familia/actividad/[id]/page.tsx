@@ -1,14 +1,14 @@
 import { createClient } from '../../../../utils/supabase/server'
 import { redirect } from 'next/navigation'
+import Link from 'next/link'
 import ActividadInteractiva from './ActividadInteractiva'
 
-// Interfaces para tipado seguro
 interface BancoInfo {
   titulo: string;
   explicacion: string;
   tips_extra: string | null;
   apoyos_visuales_url: string | null;
-  pregunta_validacion: string | null; // NUEVO CAMPO
+  pregunta_validacion: string | null;
 }
 
 interface ActividadAsignada {
@@ -25,15 +25,12 @@ export default async function PaginaDetalleActividad({
 }) {
   const supabase = await createClient()
   
-  // 1. Verificamos sesión
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
-  // 2. Extraemos el ID de forma segura
   const resolvedParams = await params;
   const actividadId = resolvedParams.id;
 
-  // 3. Buscamos la actividad asignada cruzada con el banco de actividades
   const { data, error } = await supabase
     .from('actividades_asignadas')
     .select(`
@@ -55,16 +52,37 @@ export default async function PaginaDetalleActividad({
     return (
       <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-6 text-center">
         <p className="text-gray-600 mb-4">No se encontró la actividad solicitada.</p>
-        <a href="/familia/mis-actividades" className="text-blue-600 font-medium hover:underline">
+        <Link href="/familia/mis-actividades" className="text-blue-600 font-medium hover:underline">
           Volver a mis actividades
-        </a>
+        </Link>
       </div>
     )
   }
 
-  // 4. Normalizamos los datos con tipado seguro
   const actividad = data as unknown as ActividadAsignada;
   
+  // BLOQUEO MVP: Si ya está completada, mostramos pantalla de éxito estática
+  if (actividad.estado === 'completada') {
+    return (
+      <main className="min-h-screen bg-blue-50 flex flex-col items-center justify-center p-6">
+        <div className="bg-white p-8 rounded-2xl shadow-sm text-center max-w-sm w-full border border-gray-100">
+          <div className="w-16 h-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+            </svg>
+          </div>
+          <h1 className="text-2xl font-bold text-gray-800 mb-2">¡Misión Cumplida!</h1>
+          <p className="text-gray-600 mb-8">
+            Ya enviaste la evidencia de esta actividad. ¡Excelente trabajo apoyando la terapia en casa!
+          </p>
+          <Link href="/familia/mis-actividades" className="block w-full bg-blue-600 text-white font-semibold py-3 rounded-xl hover:bg-blue-700 transition-colors">
+            Volver al inicio
+          </Link>
+        </div>
+      </main>
+    );
+  }
+
   let bancoInfo: BancoInfo = {
     titulo: 'Actividad sin título',
     explicacion: 'No hay explicación disponible.',
@@ -79,7 +97,6 @@ export default async function PaginaDetalleActividad({
       : actividad.banco_actividades;
   }
 
-  // 5. Renderizamos el componente interactivo pasándole los datos reales
   return (
     <ActividadInteractiva 
       actividadId={actividad.id}

@@ -37,3 +37,337 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 
 
 ```
+```
+espau-app
+├─ AGENTS.md
+├─ CLAUDE.md
+├─ eslint.config.mjs
+├─ estructura_src.txt
+├─ generate-tree.js
+├─ next.config.ts
+├─ package-lock.json
+├─ package.json
+├─ postcss.config.mjs
+├─ public
+│  ├─ file.svg
+│  ├─ globe.svg
+│  ├─ next.svg
+│  ├─ vercel.svg
+│  └─ window.svg
+├─ README.md
+├─ src
+│  ├─ app
+│  │  ├─ admin
+│  │  │  ├─ actions
+│  │  │  │  └─ accionesPaciente.ts
+│  │  │  ├─ actions.ts
+│  │  │  ├─ banco-actividades
+│  │  │  │  ├─ FilaActividad.tsx
+│  │  │  │  └─ page.tsx
+│  │  │  └─ dashboard
+│  │  │     ├─ AsignarPacienteForm.tsx
+│  │  │     ├─ FilaUsuario.tsx
+│  │  │     ├─ ListaUsuarios.tsx
+│  │  │     ├─ MetricasDashboard.tsx
+│  │  │     ├─ NuevoUsuarioForm.tsx
+│  │  │     └─ page.tsx
+│  │  ├─ dashboard
+│  │  │  └─ page.tsx
+│  │  ├─ familia
+│  │  │  ├─ actividad
+│  │  │  │  └─ [id]
+│  │  │  │     ├─ ActividadInteractiva.tsx
+│  │  │  │     ├─ CargaEvidencia.tsx
+│  │  │  │     ├─ FormularioSalida.tsx
+│  │  │  │     └─ page.tsx
+│  │  │  └─ mis-actividades
+│  │  │     ├─ ActividadCard.tsx
+│  │  │     └─ page.tsx
+│  │  ├─ globals.css
+│  │  ├─ layout.tsx
+│  │  ├─ login
+│  │  │  ├─ actions.ts
+│  │  │  └─ page.tsx
+│  │  ├─ page.tsx
+│  │  └─ terapeuta
+│  │     ├─ banco-actividades
+│  │     │  ├─ BuscadorBanco.tsx
+│  │     │  ├─ crear
+│  │     │  │  └─ page.tsx
+│  │     │  ├─ editar
+│  │     │  │  └─ [id]
+│  │     │  │     └─ page.tsx
+│  │     │  └─ page.tsx
+│  │     ├─ paciente
+│  │     │  └─ [id]
+│  │     │     ├─ asignar
+│  │     │     │  ├─ FormularioAsignacion.tsx
+│  │     │     │  └─ page.tsx
+│  │     │     └─ page.tsx
+│  │     └─ panel
+│  │        ├─ DirectorioPacientes.tsx
+│  │        └─ page.tsx
+│  ├─ middleware.ts
+│  └─ utils
+│     └─ supabase
+│        ├─ client.ts
+│        └─ server.ts
+├─ tailwind.config.ts
+└─ tsconfig.json
+
+```
+```
+espau-app
+├─ AGENTS.md
+├─ CLAUDE.md
+├─ eslint.config.mjs
+├─ estructura_src.txt
+├─ generate-tree.js
+├─ next.config.ts
+├─ package-lock.json
+├─ package.json
+├─ postcss.config.mjs
+├─ public
+│  ├─ file.svg
+│  ├─ globe.svg
+│  ├─ next.svg
+│  ├─ vercel.svg
+│  └─ window.svg
+├─ README.md
+├─ src
+│  ├─ app
+│  │  ├─ admin
+│  │  │  ├─ actions
+│  │  │  │  └─ accionesPaciente.ts
+│  │  │  ├─ actions.ts
+│  │  │  ├─ banco-actividades
+│  │  │  │  ├─ FilaActividad.tsx
+│  │  │  │  └─ page.tsx
+│  │  │  └─ dashboard
+│  │  │     ├─ AsignarPacienteForm.tsx
+│  │  │     ├─ DirectorioPacientes.tsx
+│  │  │     ├─ FilaUsuario.tsx
+│  │  │     ├─ ListaUsuarios.tsx
+│  │  │     ├─ metricas
+│  │  │     │  ├─ GraficasMetricas.tsx
+│  │  │     │  └─ page.tsx
+│  │  │     ├─ MetricasDashboard.tsx
+│  │  │     ├─ NuevoUsuarioForm.tsx
+│  │  │     └─ page.tsx
+│  │  ├─ dashboard
+│  │  │  └─ page.tsx
+│  │  ├─ familia
+│  │  │  ├─ actividad
+│  │  │  │  └─ [id]
+│  │  │  │     ├─ ActividadInteractiva.tsx
+│  │  │  │     ├─ CargaEvidencia.tsx
+│  │  │  │     ├─ FormularioSalida.tsx
+│  │  │  │     └─ page.tsx
+│  │  │  └─ mis-actividades
+│  │  │     ├─ ActividadCard.tsx
+│  │  │     └─ page.tsx
+│  │  ├─ globals.css
+│  │  ├─ layout.tsx
+│  │  ├─ login
+│  │  │  ├─ actions.ts
+│  │  │  └─ page.tsx
+│  │  ├─ page.tsx
+│  │  └─ terapeuta
+│  │     ├─ banco-actividades
+│  │     │  ├─ BuscadorBanco.tsx
+│  │     │  ├─ crear
+│  │     │  │  └─ page.tsx
+│  │     │  ├─ editar
+│  │     │  │  └─ [id]
+│  │     │  │     └─ page.tsx
+│  │     │  └─ page.tsx
+│  │     ├─ paciente
+│  │     │  └─ [id]
+│  │     │     ├─ asignar
+│  │     │     │  ├─ FormularioAsignacion.tsx
+│  │     │     │  └─ page.tsx
+│  │     │     └─ page.tsx
+│  │     └─ panel
+│  │        ├─ DirectorioPacientes.tsx
+│  │        └─ page.tsx
+│  ├─ components
+│  │  └─ EditorNotasClinicas.tsx
+│  ├─ middleware.ts
+│  └─ utils
+│     └─ supabase
+│        ├─ client.ts
+│        └─ server.ts
+├─ tailwind.config.ts
+└─ tsconfig.json
+
+```
+```
+espau-app
+├─ AGENTS.md
+├─ CLAUDE.md
+├─ eslint.config.mjs
+├─ estructura_src.txt
+├─ generate-tree.js
+├─ next.config.ts
+├─ package-lock.json
+├─ package.json
+├─ postcss.config.mjs
+├─ public
+│  ├─ file.svg
+│  ├─ globe.svg
+│  ├─ next.svg
+│  ├─ vercel.svg
+│  └─ window.svg
+├─ README.md
+├─ src
+│  ├─ app
+│  │  ├─ admin
+│  │  │  ├─ actions
+│  │  │  │  └─ accionesPaciente.ts
+│  │  │  ├─ actions.ts
+│  │  │  ├─ banco-actividades
+│  │  │  │  ├─ FilaActividad.tsx
+│  │  │  │  └─ page.tsx
+│  │  │  └─ dashboard
+│  │  │     ├─ AsignarPacienteForm.tsx
+│  │  │     ├─ DirectorioPacientes.tsx
+│  │  │     ├─ FilaUsuario.tsx
+│  │  │     ├─ ListaUsuarios.tsx
+│  │  │     ├─ metricas
+│  │  │     │  ├─ GraficasMetricas.tsx
+│  │  │     │  └─ page.tsx
+│  │  │     ├─ MetricasDashboard.tsx
+│  │  │     ├─ NuevoUsuarioForm.tsx
+│  │  │     └─ page.tsx
+│  │  ├─ dashboard
+│  │  │  └─ page.tsx
+│  │  ├─ familia
+│  │  │  ├─ actividad
+│  │  │  │  └─ [id]
+│  │  │  │     ├─ ActividadInteractiva.tsx
+│  │  │  │     ├─ CargaEvidencia.tsx
+│  │  │  │     ├─ FormularioSalida.tsx
+│  │  │  │     └─ page.tsx
+│  │  │  └─ mis-actividades
+│  │  │     ├─ ActividadCard.tsx
+│  │  │     └─ page.tsx
+│  │  ├─ globals.css
+│  │  ├─ layout.tsx
+│  │  ├─ login
+│  │  │  ├─ actions.ts
+│  │  │  └─ page.tsx
+│  │  ├─ page.tsx
+│  │  └─ terapeuta
+│  │     ├─ banco-actividades
+│  │     │  ├─ BuscadorBanco.tsx
+│  │     │  ├─ crear
+│  │     │  │  └─ page.tsx
+│  │     │  ├─ editar
+│  │     │  │  └─ [id]
+│  │     │  │     └─ page.tsx
+│  │     │  └─ page.tsx
+│  │     ├─ paciente
+│  │     │  └─ [id]
+│  │     │     ├─ asignar
+│  │     │     │  ├─ FormularioAsignacion.tsx
+│  │     │     │  └─ page.tsx
+│  │     │     └─ page.tsx
+│  │     └─ panel
+│  │        ├─ DirectorioPacientes.tsx
+│  │        └─ page.tsx
+│  ├─ components
+│  │  └─ EditorNotasClinicas.tsx
+│  ├─ middleware.ts
+│  └─ utils
+│     └─ supabase
+│        ├─ client.ts
+│        └─ server.ts
+├─ tailwind.config.ts
+└─ tsconfig.json
+
+```
+```
+espau-app
+├─ AGENTS.md
+├─ CLAUDE.md
+├─ eslint.config.mjs
+├─ estructura_src.txt
+├─ generate-tree.js
+├─ next.config.ts
+├─ package-lock.json
+├─ package.json
+├─ postcss.config.mjs
+├─ public
+│  ├─ file.svg
+│  ├─ globe.svg
+│  ├─ next.svg
+│  ├─ vercel.svg
+│  └─ window.svg
+├─ README.md
+├─ src
+│  ├─ app
+│  │  ├─ admin
+│  │  │  ├─ actions
+│  │  │  │  └─ accionesPaciente.ts
+│  │  │  ├─ actions.ts
+│  │  │  ├─ banco-actividades
+│  │  │  │  ├─ FilaActividad.tsx
+│  │  │  │  └─ page.tsx
+│  │  │  └─ dashboard
+│  │  │     ├─ AsignarPacienteForm.tsx
+│  │  │     ├─ DirectorioPacientes.tsx
+│  │  │     ├─ FilaUsuario.tsx
+│  │  │     ├─ ListaUsuarios.tsx
+│  │  │     ├─ metricas
+│  │  │     │  ├─ GraficasMetricas.tsx
+│  │  │     │  └─ page.tsx
+│  │  │     ├─ MetricasDashboard.tsx
+│  │  │     ├─ NuevoUsuarioForm.tsx
+│  │  │     └─ page.tsx
+│  │  ├─ dashboard
+│  │  │  └─ page.tsx
+│  │  ├─ familia
+│  │  │  ├─ actividad
+│  │  │  │  └─ [id]
+│  │  │  │     ├─ ActividadInteractiva.tsx
+│  │  │  │     ├─ CargaEvidencia.tsx
+│  │  │  │     ├─ FormularioSalida.tsx
+│  │  │  │     └─ page.tsx
+│  │  │  └─ mis-actividades
+│  │  │     ├─ ActividadCard.tsx
+│  │  │     └─ page.tsx
+│  │  ├─ globals.css
+│  │  ├─ layout.tsx
+│  │  ├─ login
+│  │  │  ├─ actions.ts
+│  │  │  └─ page.tsx
+│  │  ├─ page.tsx
+│  │  └─ terapeuta
+│  │     ├─ banco-actividades
+│  │     │  ├─ BuscadorBanco.tsx
+│  │     │  ├─ crear
+│  │     │  │  └─ page.tsx
+│  │     │  ├─ editar
+│  │     │  │  └─ [id]
+│  │     │  │     └─ page.tsx
+│  │     │  └─ page.tsx
+│  │     ├─ paciente
+│  │     │  └─ [id]
+│  │     │     ├─ asignar
+│  │     │     │  ├─ FormularioAsignacion.tsx
+│  │     │     │  └─ page.tsx
+│  │     │     └─ page.tsx
+│  │     └─ panel
+│  │        ├─ DirectorioPacientes.tsx
+│  │        └─ page.tsx
+│  ├─ components
+│  │  └─ EditorNotasClinicas.tsx
+│  ├─ middleware.ts
+│  └─ utils
+│     └─ supabase
+│        ├─ client.ts
+│        └─ server.ts
+├─ tailwind.config.ts
+└─ tsconfig.json
+
+```

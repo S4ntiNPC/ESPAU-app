@@ -51,7 +51,7 @@ export default async function DashboardPage() {
     default:
       return (
         <div className="min-h-screen flex items-center justify-center">
-          <p>Error: Rol "{perfil.rol}" no reconocido.</p>
+          <p>Error: Rol {perfil.rol} no reconocido.</p>
         </div>
       )
   }

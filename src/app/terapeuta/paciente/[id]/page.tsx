@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { createClient } from '../../../../utils/supabase/server';
 import { redirect } from 'next/navigation';
+import EditorNotasClinicas from '../../../../components/EditorNotasClinicas';
 
 // 1. DEFINICIÓN DE INTERFACES ESTRICTAS
 interface BancoActividad {
@@ -13,7 +14,6 @@ interface ActividadAsignada {
   fecha_asignada: string;
   fecha_completada: string | null;
   feedback_terapeuta: string | null;
-  // Nuevos campos agregados para ver los detalles de la evidencia
   quien_realizo: string | null;
   como_se_sintio: string | null;
   instrucciones_personalizadas: string | null;
@@ -118,15 +118,13 @@ export default async function ExpedientePaciente({
              </div>
           )}
           
-          <h1 className="text-3xl font-bold text-gray-800 mb-2">{paciente.nombre}</h1>
-          <p className="text-gray-500 mb-4">ID: <span className="text-xs">{paciente.id}</span></p>
+          <h1 className="text-3xl font-bold text-gray-800 mb-6">{paciente.nombre}</h1>
           
-          <div className="bg-blue-50 p-4 rounded-lg border border-blue-100">
-            <h3 className="font-semibold text-blue-800 mb-1">Notas Clínicas / Diagnóstico</h3>
-            <p className="text-sm text-blue-900 whitespace-pre-wrap">
-              {paciente.expediente_clinico || "Sin notas clínicas registradas en el sistema."}
-            </p>
-          </div>
+          {/* Implementación del componente reutilizable para Notas Clínicas */}
+          <EditorNotasClinicas 
+            pacienteId={paciente.id}
+            notasIniciales={paciente.expediente_clinico}
+          />
         </div>
 
         {/* Grid de Métricas Clínicas */}
@@ -173,7 +171,6 @@ export default async function ExpedientePaciente({
           ) : (
             <div className="space-y-4">
               {actividadesOrdenadas.map((actividad) => (
-                // NUEVO: Usamos <details> para hacer una tarjeta desplegable
                 <details key={actividad.id} className="group border rounded-lg overflow-hidden transition-all bg-white">
                   <summary className="flex flex-col md:flex-row md:items-center justify-between p-4 cursor-pointer hover:bg-gray-50 list-none [&::-webkit-details-marker]:hidden">
                     <div className="mb-2 md:mb-0">
@@ -192,13 +189,11 @@ export default async function ExpedientePaciente({
                         {actividad.estado === 'completada' ? 'Completada' : 'Pendiente'}
                       </span>
                       
-                      {/* El texto cambia mágicamente al abrir/cerrar usando group-open de Tailwind */}
                       <span className="text-blue-600 text-sm font-medium group-open:hidden">Ver Detalles ▼</span>
                       <span className="text-blue-600 text-sm font-medium hidden group-open:block">Ocultar ▲</span>
                     </div>
                   </summary>
 
-                  {/* Contenido Desplegable */}
                   <div className="p-4 border-t border-gray-100 bg-blue-50/30 text-sm text-gray-700 space-y-3">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
