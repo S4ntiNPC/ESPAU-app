@@ -30,20 +30,38 @@ export default async function BancoActividadesPage() {
   }
 
   return (
-    <main className="min-h-screen bg-gray-50 p-4 md:p-8">
-      <div className="max-w-6xl mx-auto">
+    <main className="min-h-screen p-4 sm:p-6 md:p-8 font-sans">
+      <div className="max-w-7xl mx-auto space-y-6 sm:space-y-8">
         
-        {/* Cabecera */}
-        <div className="mb-8">
-          <Link href="/terapeuta/panel" className="text-blue-600 hover:underline mb-4 inline-block font-medium">
-            &larr; Volver al Panel
-          </Link>
-          <h1 className="text-3xl font-bold text-gray-800">Banco de Actividades</h1>
-          <p className="text-gray-500 mt-1">Explora, busca y gestiona el catálogo de ejercicios terapéuticos.</p>
-        </div>
+        {/* Cabecera Responsiva y Consistente */}
+        <header className="bg-white rounded-3xl shadow-soft p-6 sm:p-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-6 border border-white/50">
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-extrabold text-espau-navy tracking-tight">
+              Banco de Actividades
+            </h1>
+            <p className="text-gray-500 text-sm mt-1.5 font-medium">
+              Explora, busca y gestiona el catálogo de ejercicios terapéuticos.
+            </p>
+          </div>
+          
+          <div className="w-full md:w-auto">
+            <Link 
+              href="/terapeuta/panel" 
+              className="flex items-center justify-center w-full sm:w-auto text-center bg-gray-50 text-gray-700 hover:bg-gray-100 hover:text-espau-pink px-6 py-3.5 rounded-xl font-semibold transition-all border border-gray-200 active:scale-[0.98]"
+            >
+              <span className="mr-2">&larr;</span> Volver al Panel
+            </Link>
+          </div>
+        </header>
 
-        {/* Inyectamos el componente cliente pasándole los datos enriquecidos */}
-        <BuscadorBanco actividadesIniciales={actividades || []} />
+        {/* Contenedor del Buscador y Grid de Actividades */}
+        <section className="bg-white rounded-3xl shadow-soft p-4 sm:p-8 border border-white/50">
+          {/* 
+            Inyectamos el componente cliente pasándole los datos enriquecidos.
+            Aquí vivirá la lógica de los filtros y etiquetas.
+          */}
+          <BuscadorBanco actividadesIniciales={actividades || []} />
+        </section>
 
       </div>
     </main>

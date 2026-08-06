@@ -1,1 +1,29 @@
 @import "tailwindcss";
+
+/* Configuración nativa de Tailwind v4 */
+@theme {
+  --color-espau-blue: #7189FF;
+  --color-espau-pink: #DE589E;
+  --color-espau-navy: #2D325A;
+  --color-espau-bgStart: #F0F4FF;
+  --color-espau-bgEnd: #FFF0F8;
+  
+  --shadow-soft: 0 8px 30px rgba(113, 137, 255, 0.08);
+}
+
+@layer base {
+  body {
+    /* Fondo global armónico y tipografía base oscura para contraste */
+    @apply bg-gradient-to-br from-espau-bgStart to-espau-bgEnd min-h-screen text-slate-800 antialiased;
+    
+    /* Elimina el recuadro azul nativo al tocar botones en pantallas táctiles */
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+
+/* Clases utilitarias personalizadas para no repetir código */
+@layer components {
+  .input-espau {
+    @apply w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-espau-blue focus:border-espau-blue outline-none transition-all text-base;
+  }
+}

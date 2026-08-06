@@ -36,49 +36,71 @@ export default function MetricasDashboard({ actividades }: MetricasProps) {
   // 3. Nivel de involucramiento (Métrica simplificada para el MVP)
   // MVP: Si el seguimiento es > 70% es Alto, > 40% Medio, < 40% Bajo
   let nivelInvolucramiento = 'Bajo';
-  if (porcentajeSeguimiento >= 70) nivelInvolucramiento = 'Alto';
-  else if (porcentajeSeguimiento >= 40) nivelInvolucramiento = 'Medio';
+  let colorInvolucramiento = 'text-rose-500'; // Colores semánticos más suaves
+  
+  if (porcentajeSeguimiento >= 70) {
+    nivelInvolucramiento = 'Alto';
+    colorInvolucramiento = 'text-emerald-500';
+  } else if (porcentajeSeguimiento >= 40) {
+    nivelInvolucramiento = 'Medio';
+    colorInvolucramiento = 'text-amber-500';
+  }
 
   return (
-    <div className="mb-10">
+    <div className="mb-6 sm:mb-10">
       {/* Encabezado con Enlace a la Vista Detallada */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-4 gap-4">
-        <h2 className="text-xl font-bold text-gray-800">Métricas de la Plataforma</h2>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+        <h2 className="text-xl sm:text-2xl font-bold text-espau-navy">Métricas de la Plataforma</h2>
         <Link 
           href="/admin/dashboard/metricas" 
-          className="text-sm font-medium text-blue-700 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 px-4 py-2 rounded-lg transition-colors flex items-center gap-2"
+          className="w-full sm:w-auto text-center text-sm font-semibold text-espau-blue bg-espau-blue/10 hover:bg-espau-blue/20 px-5 py-3.5 sm:py-2.5 rounded-xl transition-all active:scale-[0.98] flex items-center justify-center gap-2"
         >
           Ver Reporte Detallado &rarr;
         </Link>
       </div>
 
-      {/* Contenedor de Tarjetas (Tu lógica original intacta) */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      {/* Contenedor de Tarjetas */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
+        
         {/* Tarjeta: Porcentaje de Seguimiento */}
-        <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center justify-center text-center">
-          <h3 className="text-gray-500 text-sm font-medium mb-2">Seguimiento Global</h3>
-          <p className="text-4xl font-bold text-blue-600">{porcentajeSeguimiento}%</p>
-          <p className="text-xs text-gray-400 mt-2">Actividades completadas vs asignadas</p>
+        <div className="bg-white p-6 sm:p-8 rounded-3xl shadow-soft border border-white/50 flex flex-col items-center justify-center text-center transition-transform hover:-translate-y-1 duration-300">
+          <h3 className="text-gray-400 text-xs sm:text-sm font-bold mb-3 uppercase tracking-wider">
+            Seguimiento Global
+          </h3>
+          <p className="text-4xl sm:text-5xl font-extrabold text-espau-blue">
+            {porcentajeSeguimiento}%
+          </p>
+          <p className="text-xs text-gray-400 mt-3 font-medium">
+            Actividades completadas vs asignadas
+          </p>
         </div>
 
         {/* Tarjeta: Nivel de Involucramiento */}
-        <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center justify-center text-center">
-          <h3 className="text-gray-500 text-sm font-medium mb-2">Involucramiento Promedio</h3>
-          <p className={`text-3xl font-bold ${
-            nivelInvolucramiento === 'Alto' ? 'text-green-500' : 
-            nivelInvolucramiento === 'Medio' ? 'text-yellow-500' : 'text-red-500'
-          }`}>
+        <div className="bg-white p-6 sm:p-8 rounded-3xl shadow-soft border border-white/50 flex flex-col items-center justify-center text-center transition-transform hover:-translate-y-1 duration-300">
+          <h3 className="text-gray-400 text-xs sm:text-sm font-bold mb-3 uppercase tracking-wider">
+            Involucramiento
+          </h3>
+          <p className={`text-3xl sm:text-4xl font-extrabold ${colorInvolucramiento}`}>
             {nivelInvolucramiento}
           </p>
-          <p className="text-xs text-gray-400 mt-2">Basado en constancia de la familia</p>
+          <p className="text-xs text-gray-400 mt-3 font-medium">
+            Basado en constancia de la familia
+          </p>
         </div>
 
         {/* Tarjeta: Quién Apoyó */}
-        <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center justify-center text-center">
-          <h3 className="text-gray-500 text-sm font-medium mb-2">Apoyo Principal en Casa</h3>
-          <p className="text-2xl font-bold text-purple-600 capitalize">{cuidadorPrincipal}</p>
-          <p className="text-xs text-gray-400 mt-2">Cuidador con más registros</p>
+        <div className="bg-white p-6 sm:p-8 rounded-3xl shadow-soft border border-white/50 flex flex-col items-center justify-center text-center transition-transform hover:-translate-y-1 duration-300 sm:col-span-2 md:col-span-1">
+          <h3 className="text-gray-400 text-xs sm:text-sm font-bold mb-3 uppercase tracking-wider">
+            Apoyo Principal
+          </h3>
+          <p className="text-2xl sm:text-3xl font-extrabold text-espau-pink capitalize w-full truncate px-2">
+            {cuidadorPrincipal}
+          </p>
+          <p className="text-xs text-gray-400 mt-3 font-medium">
+            Cuidador con más registros
+          </p>
         </div>
+
       </div>
     </div>
   );

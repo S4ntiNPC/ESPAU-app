@@ -18,8 +18,8 @@ interface PacienteRaw {
   id: string;
   nombre: string;
   fecha_nacimiento: string;
-  terapeuta_id: string | null; // Añadido para el control de vínculos
-  familia_id: string | null;   // Añadido para el control de vínculos
+  terapeuta_id: string | null;
+  familia_id: string | null;
   terapeuta: PerfilBasico | null;
   familia: PerfilBasico | null;
 }
@@ -50,7 +50,6 @@ export default async function AdminDashboard() {
     console.error('Error al cargar las actividades para métricas:', errorActividades)
   }
 
-  // Se agregaron terapeuta_id y familia_id a la consulta
   const { data: pacientesRaw, error: errorPacientes } = await supabase
     .from('pacientes')
     .select(`
@@ -82,35 +81,42 @@ export default async function AdminDashboard() {
   })) || []
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-espau-bgStart via-white to-espau-bgEnd p-4 md:p-8 font-sans">
-      <div className="max-w-7xl mx-auto space-y-8">
+    <main className="min-h-screen p-4 sm:p-6 md:p-8 font-sans">
+      <div className="max-w-7xl mx-auto space-y-6 sm:space-y-8">
         
-        <header className="bg-white/80 backdrop-blur-md rounded-3xl shadow-sm border border-white p-6 md:p-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        {/* HEADER: Adaptado para móviles con botones de tamaño táctil accesible */}
+        <header className="bg-white rounded-3xl shadow-soft p-6 sm:p-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-6 border border-white/50">
           <div>
-            <h1 className="text-3xl font-extrabold text-espau-navy tracking-tight">Panel de Administración</h1>
-            <p className="text-gray-500 text-sm mt-1">Supervisión general, asignaciones y gestión ESPAU.</p>
+            <h1 className="text-2xl sm:text-3xl font-extrabold text-espau-navy tracking-tight">
+              Panel de Administración
+            </h1>
+            <p className="text-gray-500 text-sm mt-1.5">
+              Supervisión general, asignaciones y gestión ESPAU.
+            </p>
           </div>
-          <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
+          
+          <div className="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
             <Link 
               href="/admin/banco-actividades"
-              className="flex-1 md:flex-none text-center bg-espau-blue text-white hover:bg-blue-600 shadow-md shadow-blue-200 px-6 py-2.5 rounded-full font-semibold transition-all hover:-translate-y-0.5"
+              className="w-full sm:w-auto text-center bg-espau-blue text-white hover:bg-opacity-90 px-6 py-3.5 rounded-xl font-semibold transition-all active:scale-[0.98]"
             >
               Banco de Actividades
             </Link>
-            <form action={logout} className="flex-1 md:flex-none">
-              <button className="w-full text-center bg-white text-gray-600 hover:text-espau-pink px-6 py-2.5 rounded-full font-semibold transition-all border-2 border-gray-200 hover:border-pink-200">
+            <form action={logout} className="w-full sm:w-auto">
+              <button className="w-full text-center bg-gray-50 text-gray-700 hover:bg-gray-100 hover:text-espau-pink px-6 py-3.5 rounded-xl font-semibold transition-all border border-gray-200 active:scale-[0.98]">
                 Cerrar Sesión
               </button>
             </form>
           </div>
         </header>
         
+        {/* SECCIÓN: Métricas Globales */}
         <section>
           <MetricasDashboard actividades={actividades || []} />
         </section>
 
+        {/* SECCIÓN: Directorio de Pacientes */}
         <section>
-          {/* AHORA PASAMOS LOS CATÁLOGOS AL DIRECTORIO */}
           <DirectorioPacientes 
             pacientes={pacientes} 
             terapeutas={terapeutas}
@@ -118,29 +124,38 @@ export default async function AdminDashboard() {
           />
         </section>
 
-        <section className="bg-white/80 backdrop-blur-md rounded-3xl shadow-sm border border-white p-6 md:p-8">
-          <header className="mb-8 border-b border-gray-100 pb-4">
-            <h2 className="text-2xl font-bold text-espau-navy">Gestión de Usuarios y Asignaciones</h2>
-            <p className="text-sm text-gray-500 mt-1">Da de alta terapeutas y cuidadores, y administra las asignaciones de casos.</p>
+        {/* SECCIÓN: Gestión de Usuarios */}
+        <section className="bg-white rounded-3xl shadow-soft p-6 sm:p-8 border border-white/50">
+          <header className="mb-6 sm:mb-8 border-b border-gray-100 pb-4">
+            <h2 className="text-xl sm:text-2xl font-bold text-espau-navy">Gestión de Usuarios y Asignaciones</h2>
+            <p className="text-sm text-gray-500 mt-1.5">
+              Da de alta terapeutas y cuidadores, y administra las asignaciones de casos.
+            </p>
           </header>
           
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-12">
+            {/* Columna Izquierda: Alta de Usuarios */}
             <div className="lg:col-span-1 lg:border-r lg:border-gray-100 lg:pr-8">
               <NuevoUsuarioForm />
             </div>
             
+            {/* Columna Derecha: Directorio y Asignaciones */}
             <div className="lg:col-span-2 space-y-10">
               <div>
-                <h3 className="text-xl font-bold text-espau-navy mb-4">Directorio de Usuarios</h3>
-                <ListaUsuarios />
+                <h3 className="text-lg sm:text-xl font-bold text-espau-navy mb-4">Directorio de Usuarios</h3>
+                <div className="bg-gray-50 rounded-2xl p-1 sm:p-4 border border-gray-100">
+                  <ListaUsuarios />
+                </div>
               </div>
               
               <div className="pt-8 border-t border-gray-100">
-                <h3 className="text-xl font-bold text-espau-navy mb-4">Asignar Paciente a Terapeuta</h3>
-                <AsignarPacienteForm 
-                  terapeutas={terapeutas} 
-                  familias={familias} 
-                />
+                <h3 className="text-lg sm:text-xl font-bold text-espau-navy mb-4">Asignar Paciente a Terapeuta</h3>
+                <div className="bg-espau-bgStart/30 rounded-2xl p-4 sm:p-6 border border-espau-blue/10">
+                  <AsignarPacienteForm 
+                    terapeutas={terapeutas} 
+                    familias={familias} 
+                  />
+                </div>
               </div>
             </div>
           </div>

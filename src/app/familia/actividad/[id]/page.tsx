@@ -31,6 +31,7 @@ export default async function PaginaDetalleActividad({
   const resolvedParams = await params;
   const actividadId = resolvedParams.id;
 
+  // Tipamos la respuesta directamente desde la query
   const { data, error } = await supabase
     .from('actividades_asignadas')
     .select(`
@@ -46,36 +47,50 @@ export default async function PaginaDetalleActividad({
       )
     `)
     .eq('id', actividadId)
-    .single()
+    .single<ActividadAsignada>()
 
+  // ESTADO: Actividad no encontrada (UX Amigable)
   if (error || !data) {
     return (
-      <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-6 text-center">
-        <p className="text-gray-600 mb-4">No se encontró la actividad solicitada.</p>
-        <Link href="/familia/mis-actividades" className="text-blue-600 font-medium hover:underline">
-          Volver a mis actividades
-        </Link>
-      </div>
+      <main className="min-h-screen flex flex-col items-center justify-center p-4 sm:p-6 font-sans">
+        <div className="bg-white p-8 rounded-3xl shadow-soft text-center max-w-sm w-full border border-white/50">
+          <span className="text-5xl block mb-4">🔍</span>
+          <h2 className="text-xl font-extrabold text-espau-navy mb-2">¡Ups!</h2>
+          <p className="text-gray-500 mb-8 font-medium leading-relaxed">
+            No logramos encontrar esta actividad. Es posible que ya no esté disponible.
+          </p>
+          <Link 
+            href="/familia/mis-actividades" 
+            className="block w-full bg-espau-blue text-white px-6 py-3.5 rounded-xl font-bold hover:bg-opacity-90 transition-all active:scale-[0.98] shadow-sm"
+          >
+            Volver a mi plan
+          </Link>
+        </div>
+      </main>
     )
   }
 
-  const actividad = data as unknown as ActividadAsignada;
+  const actividad = data;
   
-  // BLOQUEO MVP: Si ya está completada, mostramos pantalla de éxito estática
+  // BLOQUEO MVP: Pantalla de éxito y felicitación si ya está completada[cite: 2].
   if (actividad.estado === 'completada') {
     return (
-      <main className="min-h-screen bg-blue-50 flex flex-col items-center justify-center p-6">
-        <div className="bg-white p-8 rounded-2xl shadow-sm text-center max-w-sm w-full border border-gray-100">
-          <div className="w-16 h-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-4">
-            <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-            </svg>
-          </div>
-          <h1 className="text-2xl font-bold text-gray-800 mb-2">¡Misión Cumplida!</h1>
-          <p className="text-gray-600 mb-8">
+      <main className="min-h-screen flex flex-col items-center justify-center p-4 sm:p-6 font-sans">
+        <div className="bg-white p-8 rounded-3xl shadow-soft text-center max-w-sm w-full border border-white/50 relative overflow-hidden">
+          {/* Detalle visual superior */}
+          <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-espau-pink to-espau-blue"></div>
+          
+          <span className="text-6xl block mb-6 animate-bounce">🌟</span>
+          
+          <h1 className="text-2xl font-extrabold text-espau-navy mb-3">¡Misión Cumplida!</h1>
+          <p className="text-gray-500 mb-8 font-medium leading-relaxed">
             Ya enviaste la evidencia de esta actividad. ¡Excelente trabajo apoyando la terapia en casa!
           </p>
-          <Link href="/familia/mis-actividades" className="block w-full bg-blue-600 text-white font-semibold py-3 rounded-xl hover:bg-blue-700 transition-colors">
+          
+          <Link 
+            href="/familia/mis-actividades" 
+            className="block w-full bg-espau-blue text-white font-bold py-3.5 rounded-xl hover:bg-opacity-90 transition-all active:scale-[0.98] shadow-sm"
+          >
             Volver al inicio
           </Link>
         </div>
@@ -83,6 +98,7 @@ export default async function PaginaDetalleActividad({
     );
   }
 
+  // Normalización segura de la información del banco
   let bancoInfo: BancoInfo = {
     titulo: 'Actividad sin título',
     explicacion: 'No hay explicación disponible.',
@@ -97,6 +113,7 @@ export default async function PaginaDetalleActividad({
       : actividad.banco_actividades;
   }
 
+  // Renderizamos el componente cliente que manejará el flujo paso a paso
   return (
     <ActividadInteractiva 
       actividadId={actividad.id}

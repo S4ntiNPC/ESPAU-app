@@ -16,9 +16,13 @@ const config: Config = {
           bgStart: "#F0F4FF", // Azul muy claro para gradientes
           bgEnd: "#FFF0F8",   // Rosa muy claro para gradientes
         }
+      },
+      boxShadow: {
+        'soft': '0 8px 30px rgba(113, 137, 255, 0.08)', // Sombra pastel muy sutil
       }
     },
   },
   plugins: [],
 };
+
 export default config;

@@ -20,41 +20,79 @@ export default async function AdminBancoActividades() {
   }
 
   return (
-    <main className="min-h-screen bg-gray-50 p-8">
-      <div className="max-w-6xl mx-auto bg-white rounded-xl shadow-sm p-8">
+    <main className="min-h-screen p-4 sm:p-6 md:p-8 font-sans">
+      <div className="max-w-7xl mx-auto space-y-6 sm:space-y-8">
         
-        <header className="flex justify-between items-center border-b pb-4 mb-6">
+        {/* HEADER: Consistente con el layout del Dashboard y optimizado para móvil */}
+        <header className="bg-white rounded-3xl shadow-soft p-6 sm:p-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-6 border border-white/50">
           <div>
-            <h1 className="text-2xl font-bold text-gray-800">Administración del Banco de Actividades</h1>
-            <p className="text-gray-500 text-sm mt-1">Gestiona el catálogo general y las encuestas de validación.</p>
+            <h1 className="text-2xl sm:text-3xl font-extrabold text-espau-navy tracking-tight">
+              Banco de Actividades
+            </h1>
+            <p className="text-gray-500 text-sm mt-1.5">
+              Gestiona el catálogo general y las encuestas de validación.
+            </p>
           </div>
-          <Link href="/admin/dashboard" className="bg-gray-100 text-gray-700 hover:bg-gray-200 px-4 py-2 rounded-lg font-medium transition-colors">
-            Volver al Panel
-          </Link>
+          
+          <div className="w-full md:w-auto">
+            <Link 
+              href="/admin/dashboard" 
+              className="flex items-center justify-center w-full sm:w-auto text-center bg-gray-50 text-gray-700 hover:bg-gray-100 px-6 py-3.5 rounded-xl font-semibold transition-all border border-gray-200 active:scale-[0.98]"
+            >
+              <span className="mr-2">&larr;</span> Volver al Panel
+            </Link>
+          </div>
         </header>
 
-        <div className="overflow-x-auto rounded-lg border border-gray-200">
-          <table className="w-full text-sm text-left text-gray-500">
-            <thead className="text-xs text-gray-700 uppercase bg-gray-50 border-b">
-              <tr>
-                <th className="px-6 py-4">Título</th>
-                <th className="px-6 py-4">Pregunta de Validación</th>
-                <th className="px-6 py-4 text-right">Acciones</th>
-              </tr>
-            </thead>
-            <tbody>
-              {actividades?.map((actividad) => (
-                <FilaActividad key={actividad.id} actividad={actividad} />
-              ))}
-              {(!actividades || actividades.length === 0) && (
-                <tr>
-                  <td colSpan={3} className="px-6 py-8 text-center text-gray-500">
-                    No hay actividades registradas en el banco aún.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
+        {/* CONTENEDOR DE LA TABLA: Responsive Degradation para móviles */}
+        <div className="w-full">
+          <div className="overflow-hidden bg-white rounded-3xl shadow-soft border border-white/50">
+            {/* Header interno de la tabla para acciones futuras (ej. Botón de "Crear Nueva") */}
+            <div className="p-6 border-b border-gray-100 flex justify-between items-center bg-white">
+              <h2 className="text-lg font-bold text-espau-navy">Actividades Registradas</h2>
+              <Link
+                href="/admin/banco-actividades/crear"
+                className="text-sm font-semibold text-white bg-espau-blue hover:bg-opacity-90 px-4 py-2.5 rounded-lg transition-all active:scale-[0.98] shadow-sm"
+              >
+                + Nueva Actividad
+              </Link>
+            </div>
+
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm text-left text-gray-600">
+                <thead className="text-xs text-espau-navy uppercase tracking-wider bg-espau-bgStart/50 border-b border-espau-blue/10">
+                  <tr>
+                    <th scope="col" className="px-6 py-4 font-bold min-w-[200px]">
+                      Título
+                    </th>
+                    {/* Esta columna suele ser larga, le damos un ancho mínimo */}
+                    <th scope="col" className="px-6 py-4 font-bold min-w-[250px]">
+                      Pregunta de Validación
+                    </th>
+                    <th scope="col" className="px-6 py-4 font-bold text-right">
+                      Acciones
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-50">
+                  {actividades?.map((actividad) => (
+                    <FilaActividad key={actividad.id} actividad={actividad} />
+                  ))}
+                  
+                  {(!actividades || actividades.length === 0) && (
+                    <tr>
+                      <td colSpan={3} className="px-6 py-16 text-center text-gray-500 font-medium bg-gray-50/50">
+                        <div className="flex flex-col items-center justify-center space-y-3">
+                          <span className="text-4xl">📂</span>
+                          <p>No hay actividades registradas en el banco aún.</p>
+                        </div>
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
         </div>
 
       </div>

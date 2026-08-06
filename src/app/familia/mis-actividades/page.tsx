@@ -49,14 +49,18 @@ export default async function FamiliaMisActividades() {
 
   const paciente = data as unknown as Paciente;
 
+  // ESTADO: Sin paciente asignado (Manejo de errores amigable)
   if (error || !paciente) {
     return (
-      <main className="min-h-screen bg-blue-50 p-4 md:p-8 flex items-center justify-center">
-        <div className="bg-white p-8 rounded-2xl shadow-sm text-center max-w-md">
-          <h2 className="text-xl font-bold text-gray-800 mb-2">Aún no hay pacientes asignados</h2>
-          <p className="text-gray-600 mb-6">Por favor, contacta a la coordinación de ESPAU para que vinculen tu cuenta con el expediente de tu pequeño.</p>
+      <main className="min-h-screen p-4 flex items-center justify-center font-sans">
+        <div className="bg-white p-8 rounded-3xl shadow-soft text-center max-w-sm border border-white/50">
+          <span className="text-5xl block mb-4">🧩</span>
+          <h2 className="text-xl font-extrabold text-espau-navy mb-2">¡Casi listos!</h2>
+          <p className="text-gray-500 mb-8 font-medium text-sm leading-relaxed">
+            Aún estamos preparando el expediente de tu pequeño. Por favor, avísale a tu terapeuta en la próxima sesión para que vincule tu cuenta.
+          </p>
           <form action={logout}>
-            <button className="bg-blue-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-blue-700">
+            <button className="w-full bg-gray-50 text-gray-700 border border-gray-200 px-6 py-3.5 rounded-xl font-bold hover:bg-gray-100 active:scale-[0.98] transition-all">
               Cerrar Sesión
             </button>
           </form>
@@ -69,7 +73,7 @@ export default async function FamiliaMisActividades() {
   const actividades = paciente.actividades_asignadas || [];
   actividades.sort((a, b) => new Date(b.fecha_asignada).getTime() - new Date(a.fecha_asignada).getTime());
 
-  // Separar listas
+  // Separar listas para dar prioridad visual a lo que falta por hacer[cite: 1]
   const pendientes = actividades.filter(a => a.estado === 'pendiente' || a.estado === 'incompleta');
   const completadas = actividades.filter(a => a.estado === 'completada');
 
@@ -88,58 +92,74 @@ export default async function FamiliaMisActividades() {
   };
 
   return (
-    <main className="min-h-screen bg-blue-50 p-4 md:p-8">
-      <div className="max-w-md mx-auto md:max-w-2xl bg-white rounded-2xl shadow-sm overflow-hidden pb-8">
+    <main className="min-h-screen p-4 sm:p-6 font-sans flex justify-center">
+      {/* Contenedor tipo "App" restringido en ancho para mejor UX */}
+      <div className="w-full max-w-lg space-y-6">
         
-        <header className="bg-blue-600 p-6 text-white flex justify-between items-start">
-          <div>
-            <h1 className="text-2xl font-bold">¡Hola! 👋</h1>
-            <p className="opacity-90 mt-1">
-              Aquí está el plan de hoy para reforzar la terapia de <b>{paciente.nombre}</b> en casa.
+        {/* HEADER: Bienvenida empática */}
+        <header className="bg-white rounded-3xl shadow-soft p-6 border border-white/50 flex justify-between items-start">
+          <div className="pr-4">
+            <h1 className="text-2xl font-extrabold text-espau-navy">¡Hola! 👋</h1>
+            <p className="text-gray-500 font-medium mt-1.5 leading-relaxed text-sm">
+              Aquí está el plan de hoy para seguir apoyando a <span className="font-bold text-espau-pink">{paciente.nombre}</span> en casa.
             </p>
           </div>
           <form action={logout}>
-            <button className="text-xs bg-white/20 hover:bg-white/30 px-3 py-1.5 rounded-full transition-colors">
-              Salir
+            <button 
+              className="shrink-0 bg-gray-50 hover:bg-red-50 text-gray-400 hover:text-red-500 p-2 rounded-full transition-colors border border-transparent hover:border-red-100"
+              title="Cerrar sesión"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+              </svg>
             </button>
           </form>
         </header>
 
-        <div className="p-6">
-          {/* SECCIÓN 1: PENDIENTES */}
-          <section className="mb-8">
-            <h2 className="font-semibold text-gray-700 mb-4 text-lg">Actividades Asignadas</h2>
-            {pendientes.length === 0 ? (
-              <div className="text-center py-8 bg-blue-50/50 rounded-xl border-2 border-dashed border-blue-100">
-                <p className="text-gray-500">No hay actividades asignadas por el momento.</p>
-                <p className="text-sm text-gray-400 mt-1">¡Tómense un merecido descanso!</p>
-              </div>
-            ) : (
-              <div className="space-y-3">
-                {pendientes.map((actividad) => (
-                  <ActividadCard key={actividad.id} actividad={normalizarActividad(actividad)} />
-                ))}
-              </div>
-            )}
-          </section>
-
-          {/* SECCIÓN 2: COMPLETADAS */}
-          {completadas.length > 0 && (
-            <section>
-              <h2 className="font-semibold text-gray-700 mb-4 text-lg border-t pt-6">Actividades Completadas</h2>
-              <div className="space-y-3 opacity-80">
-                {completadas.map((actividad) => (
-                  <ActividadCard key={actividad.id} actividad={normalizarActividad(actividad)} />
-                ))}
-              </div>
-            </section>
-          )}
-
-          <div className="mt-8 p-4 bg-orange-50 rounded-xl border border-orange-100 text-center">
-            <p className="text-orange-600 font-medium text-sm">
-              🔥 Próximamente: ¡Aquí verás tus rachas y niveles!
-            </p>
+        {/* SECCIÓN PRINCIPAL: ¿Qué me toca hacer hoy?[cite: 1] */}
+        <section>
+          <div className="flex items-center justify-between mb-4 px-2">
+            <h2 className="font-extrabold text-lg text-espau-navy">Tu plan para hoy</h2>
+            <span className="bg-espau-blue text-white text-xs font-bold px-3 py-1 rounded-full">
+              {pendientes.length} {pendientes.length === 1 ? 'tarea' : 'tareas'}
+            </span>
           </div>
+
+          {pendientes.length === 0 ? (
+            <div className="bg-white p-8 rounded-3xl shadow-soft border border-white/50 text-center flex flex-col items-center">
+              <span className="text-6xl mb-4">🎉</span>
+              <h3 className="font-extrabold text-espau-navy text-lg mb-2">¡Misión cumplida!</h3>
+              <p className="text-gray-500 text-sm font-medium">No tienes actividades pendientes. ¡Tómense un merecido descanso!</p>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {pendientes.map((actividad) => (
+                <ActividadCard key={actividad.id} actividad={normalizarActividad(actividad)} />
+              ))}
+            </div>
+          )}
+        </section>
+
+        {/* SECCIÓN SECUNDARIA: Historial atenuado */}
+        {completadas.length > 0 && (
+          <section className="pt-4">
+            <h2 className="font-bold text-gray-400 mb-4 px-2 uppercase tracking-wider text-xs">
+              Actividades Completadas
+            </h2>
+            <div className="space-y-3 opacity-70 hover:opacity-100 transition-opacity">
+              {completadas.map((actividad) => (
+                <ActividadCard key={actividad.id} actividad={normalizarActividad(actividad)} />
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* TEASER DE GAMIFICACIÓN: Futuras rachas y niveles[cite: 2] */}
+        <div className="mt-8 bg-gradient-to-r from-espau-pink/10 to-espau-blue/10 p-5 rounded-3xl border border-white/50 text-center flex items-center justify-center gap-3 shadow-sm">
+           <span className="text-2xl animate-bounce">⭐</span>
+           <p className="text-espau-navy font-bold text-sm">
+             Próximamente: ¡Gana puntos y sube de nivel con cada tarea!
+           </p>
         </div>
 
       </div>

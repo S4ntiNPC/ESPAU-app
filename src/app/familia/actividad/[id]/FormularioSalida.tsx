@@ -9,7 +9,6 @@ interface FormularioSalidaProps {
     validacion: string;
   }) => void;
   isSubmitting?: boolean;
-  // NUEVO: Recibimos la pregunta dinámica
   preguntaValidacion?: string | null; 
 }
 
@@ -34,13 +33,11 @@ export default function FormularioSalida({
     onSubmit(formData);
   };
 
-  // Usamos la pregunta de la base de datos, o un fallback si está vacía
   const preguntaDinamica = preguntaValidacion || '¿Cómo le fue con este ejercicio?';
 
   return (
     <form onSubmit={handleSubmit} className="w-full max-w-lg mx-auto space-y-6">
       
-      {/* Pregunta 1: ¿Quién eres? */}
       <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm">
         <label htmlFor="quienRealizo" className="block text-gray-800 font-semibold mb-2">
           ¿Quién apoyó en esta actividad? *
@@ -63,7 +60,6 @@ export default function FormularioSalida({
         </select>
       </div>
 
-      {/* Pregunta 2: ¿Cómo te sentiste? */}
       <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm">
         <label htmlFor="comoSeSintio" className="block text-gray-800 font-semibold mb-2">
           ¿Cómo se sintieron durante el ejercicio? *
@@ -80,7 +76,6 @@ export default function FormularioSalida({
         />
       </div>
 
-      {/* Pregunta 3: Validación DINÁMICA */}
       <div className="bg-[#F4F7FF] p-5 rounded-xl border border-blue-100 shadow-sm">
         <label htmlFor="validacion" className="block text-[#1E3A8A] font-semibold mb-3">
           {preguntaDinamica} *
@@ -97,7 +92,6 @@ export default function FormularioSalida({
         />
       </div>
 
-      {/* Botón de Envío */}
       <button
         type="submit"
         disabled={isSubmitting}

@@ -35,30 +35,59 @@ export default function AsignarPacienteForm({ terapeutas, familias }: Props) {
     setLoading(false)
   }
 
+  // Clases compartidas para consistencia y accesibilidad táctil
+  const inputClasses = "w-full px-4 py-3.5 bg-white border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-espau-blue focus:border-espau-blue outline-none transition-all text-base placeholder:text-gray-400";
+  const labelClasses = "block text-sm font-semibold text-gray-700 mb-1.5 ml-1";
+
   return (
-    <div className="bg-white p-6 rounded-lg border border-gray-200 mt-6 shadow-sm">
-      <h2 className="text-lg font-bold text-gray-800 mb-4">Alta y Asignación de Paciente</h2>
+    <div className="bg-transparent p-1">
+      <p className="text-sm text-gray-600 mb-6 font-medium">
+        Crea el expediente del menor y vincúlalo inmediatamente con su especialista y su apoyo en casa.
+      </p>
       
-      <form ref={formRef} action={handleSubmit} className="space-y-4">
+      <form ref={formRef} action={handleSubmit} className="space-y-6">
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* Sección: Datos del Paciente */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-6">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Nombre del Paciente (Niño/a)</label>
-            <input type="text" name="nombre" required className="w-full border rounded-md p-2" placeholder="Ej. Juanito González" />
+            <label className={labelClasses}>
+              Nombre del Paciente (Niño/a)
+            </label>
+            <input 
+              type="text" 
+              name="nombre" 
+              required 
+              className={inputClasses} 
+              placeholder="Ej. Juanito González" 
+            />
           </div>
           
-          {/* NUEVO: Campo de Fecha de Nacimiento (Obligatorio en BD) */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Fecha de Nacimiento</label>
-            <input type="date" name="fecha_nacimiento" required className="w-full border rounded-md p-2" />
+            <label className={labelClasses}>
+              Fecha de Nacimiento
+            </label>
+            <input 
+              type="date" 
+              name="fecha_nacimiento" 
+              required 
+              className={inputClasses} 
+            />
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* Sección: Asignaciones */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-6">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Terapeuta Asignado</label>
-            <select name="terapeuta_id" required className="w-full border rounded-md p-2 bg-white">
-              <option value="">Seleccione un terapeuta...</option>
+            <label className={labelClasses}>
+              Terapeuta Asignado
+            </label>
+            <select 
+              name="terapeuta_id" 
+              required 
+              className={`${inputClasses} cursor-pointer`}
+              defaultValue=""
+            >
+              <option value="" disabled>Seleccione un terapeuta...</option>
               {terapeutas.map(t => (
                 <option key={t.id} value={t.id}>{t.nombre_completo}</option>
               ))}
@@ -66,9 +95,16 @@ export default function AsignarPacienteForm({ terapeutas, familias }: Props) {
           </div>
           
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Cuidador Principal (Familia)</label>
-            <select name="familia_id" required className="w-full border rounded-md p-2 bg-white">
-              <option value="">Seleccione un cuidador...</option>
+            <label className={labelClasses}>
+              Cuidador Principal (Familia)
+            </label>
+            <select 
+              name="familia_id" 
+              required 
+              className={`${inputClasses} cursor-pointer`}
+              defaultValue=""
+            >
+              <option value="" disabled>Seleccione un cuidador...</option>
               {familias.map(f => (
                 <option key={f.id} value={f.id}>{f.nombre_completo}</option>
               ))}
@@ -76,18 +112,40 @@ export default function AsignarPacienteForm({ terapeutas, familias }: Props) {
           </div>
         </div>
 
+        {/* Alertas del Sistema */}
         {mensaje && (
-          <div className={`p-3 rounded-md text-sm ${mensaje.tipo === 'error' ? 'bg-red-50 text-red-600' : 'bg-green-50 text-green-600'}`}>
+          <div className={`p-4 rounded-xl text-sm font-medium text-center border transition-all ${
+            mensaje.tipo === 'error' 
+              ? 'bg-red-50 text-red-600 border-red-100' 
+              : 'bg-emerald-50 text-emerald-600 border-emerald-100'
+          }`}>
             {mensaje.texto}
           </div>
         )}
 
+        {(terapeutas.length === 0 || familias.length === 0) && !mensaje && (
+           <div className="bg-amber-50 text-amber-700 p-4 rounded-xl text-sm font-medium text-center border border-amber-100">
+             Debes registrar al menos un terapeuta y un familiar antes de poder asignar un paciente.
+           </div>
+        )}
+
+        {/* Botón de Acción Principal */}
         <button 
           type="submit" 
           disabled={loading || terapeutas.length === 0 || familias.length === 0}
-          className="bg-purple-600 text-white px-4 py-2 rounded-md font-medium hover:bg-purple-700 disabled:opacity-50 w-full md:w-auto"
+          className="w-full bg-espau-blue text-white px-4 py-3.5 rounded-xl font-semibold hover:bg-opacity-90 active:scale-[0.98] transition-all disabled:opacity-70 disabled:cursor-not-allowed shadow-sm mt-2 md:w-auto md:px-8"
         >
-          {loading ? 'Asignando...' : 'Asignar Paciente'}
+          {loading ? (
+            <span className="flex items-center justify-center gap-2">
+              <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              Asignando...
+            </span>
+          ) : (
+            'Asignar Paciente'
+          )}
         </button>
       </form>
     </div>
