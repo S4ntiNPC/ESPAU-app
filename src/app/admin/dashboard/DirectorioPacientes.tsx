@@ -41,7 +41,7 @@ export default function DirectorioPacientes({
   const [editingPaciente, setEditingPaciente] = useState<PacienteAdmin | null>(null);
   const [editForm, setEditForm] = useState({ nombre: '', fecha_nacimiento: '' });
 
-  // Estados para Modal de Gestión de Vínculos[cite: 2]
+  // Estados para Modal de Gestión de Vínculos
   const [linkingPaciente, setLinkingPaciente] = useState<PacienteAdmin | null>(null);
   const [linkForm, setLinkForm] = useState({ terapeuta_id: '', familia_id: '' });
 
@@ -122,7 +122,7 @@ export default function DirectorioPacientes({
         <div>
           <h2 className="text-xl sm:text-2xl font-bold text-espau-navy">Directorio de Pacientes</h2>
           <p className="text-sm text-gray-500 font-medium mt-1">
-            Listado general, gestión de expedientes y asignaciones activas[cite: 2].
+            Listado general, gestión de expedientes y asignaciones activas.
           </p>
         </div>
       </div>
@@ -171,28 +171,32 @@ export default function DirectorioPacientes({
                         <span className="text-gray-400 italic text-xs font-medium bg-gray-100 px-3 py-1.5 rounded-lg">Sin asignar</span>
                       )}
                     </td>
-                    <td className="py-4 px-5 text-right space-x-2">
-                      <button 
-                        onClick={() => abrirModalEdicion(paciente)}
-                        disabled={isProcessing}
-                        className="text-espau-blue bg-espau-blue/5 hover:bg-espau-blue/10 px-3 py-1.5 rounded-lg font-bold text-xs transition-colors disabled:opacity-50"
-                      >
-                        Editar
-                      </button>
-                      <button 
-                        onClick={() => abrirModalVinculos(paciente)}
-                        disabled={isProcessing}
-                        className="text-amber-600 bg-amber-50 hover:bg-amber-100 px-3 py-1.5 rounded-lg font-bold text-xs transition-colors disabled:opacity-50"
-                      >
-                        Vínculos
-                      </button>
-                      <button 
-                        onClick={() => handleEliminar(paciente.id)}
-                        disabled={isProcessing}
-                        className="text-red-500 bg-red-50 hover:bg-red-100 px-3 py-1.5 rounded-lg font-bold text-xs transition-colors disabled:opacity-50 opacity-0 group-hover:opacity-100"
-                      >
-                        Eliminar
-                      </button>
+                    <td className="py-4 px-5">
+                      {/* Contenedor flexible para evitar que los botones se empalmen en pantallas pequeñas */}
+                      <div className="flex flex-wrap justify-end gap-2">
+                        <button 
+                          onClick={() => abrirModalEdicion(paciente)}
+                          disabled={isProcessing}
+                          className="text-espau-blue bg-espau-blue/5 hover:bg-espau-blue/10 px-3 py-1.5 rounded-lg font-bold text-xs transition-colors disabled:opacity-50"
+                        >
+                          Editar
+                        </button>
+                        <button 
+                          onClick={() => abrirModalVinculos(paciente)}
+                          disabled={isProcessing}
+                          className="text-amber-600 bg-amber-50 hover:bg-amber-100 px-3 py-1.5 rounded-lg font-bold text-xs transition-colors disabled:opacity-50"
+                        >
+                          Vínculos
+                        </button>
+                        {/* Botón de eliminar visible siempre y funcional en dispositivos táctiles */}
+                        <button 
+                          onClick={() => handleEliminar(paciente.id)}
+                          disabled={isProcessing}
+                          className="text-red-600 bg-red-50 hover:bg-red-100 px-3 py-1.5 rounded-lg font-bold text-xs transition-colors disabled:opacity-50"
+                        >
+                          Eliminar
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))
