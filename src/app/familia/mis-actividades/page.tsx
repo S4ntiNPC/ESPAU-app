@@ -3,16 +3,20 @@ import { logout } from '../../login/actions'
 import { redirect } from 'next/navigation'
 import ActividadCard from './ActividadCard'
 
+// 1. ACTUALIZAMOS LAS INTERFACES PARA ACEPTAR LOS NUEVOS DATOS
 interface BancoActividadesInfo {
   titulo: string;
   explicacion: string;
   apoyos_visuales_url: string | null;
+  pregunta_validacion?: string | null; // Agregado
 }
 
 interface ActividadAsignada {
   id: string;
   estado: 'pendiente' | 'completada' | 'incompleta';
   fecha_asignada: string;
+  respuesta_validacion?: string | null; // Agregado
+  evidencia_url?: string | null; // Agregado
   banco_actividades: BancoActividadesInfo | BancoActividadesInfo[] | null;
 }
 
@@ -37,10 +41,13 @@ export default async function FamiliaMisActividades() {
         id,
         estado,
         fecha_asignada,
+        respuesta_validacion,
+        evidencia_url,
         banco_actividades (
           titulo,
           explicacion,
-          apoyos_visuales_url
+          apoyos_visuales_url,
+          pregunta_validacion
         )
       )
     `)
@@ -49,7 +56,6 @@ export default async function FamiliaMisActividades() {
 
   const paciente = data as unknown as Paciente;
 
-  // ESTADO: Sin paciente asignado (Manejo de errores amigable)
   if (error || !paciente) {
     return (
       <main className="min-h-screen p-4 flex items-center justify-center font-sans">
@@ -69,14 +75,13 @@ export default async function FamiliaMisActividades() {
     );
   }
 
-  // Ordenar cronológicamente (más recientes primero)
   const actividades = paciente.actividades_asignadas || [];
   actividades.sort((a, b) => new Date(b.fecha_asignada).getTime() - new Date(a.fecha_asignada).getTime());
 
-  // Separar listas para dar prioridad visual a lo que falta por hacer[cite: 1]
   const pendientes = actividades.filter(a => a.estado === 'pendiente' || a.estado === 'incompleta');
   const completadas = actividades.filter(a => a.estado === 'completada');
 
+  // 2. ACTUALIZAMOS EL EMBUDO: AHORA SÍ PASAMOS LA FOTO Y LA RESPUESTA
   const normalizarActividad = (act: ActividadAsignada) => {
     let bancoInfo = null;
     if (act.banco_actividades) {
@@ -87,16 +92,16 @@ export default async function FamiliaMisActividades() {
     return {
       id: act.id,
       estado: act.estado,
+      respuesta_validacion: act.respuesta_validacion, // ¡Pasamos el dato!
+      evidencia_url: act.evidencia_url,               // ¡Pasamos la foto!
       banco_actividades: bancoInfo
     };
   };
 
   return (
     <main className="min-h-screen p-4 sm:p-6 font-sans flex justify-center">
-      {/* Contenedor tipo "App" restringido en ancho para mejor UX */}
       <div className="w-full max-w-lg space-y-6">
         
-        {/* HEADER: Bienvenida empática */}
         <header className="bg-white rounded-3xl shadow-soft p-6 border border-white/50 flex justify-between items-start">
           <div className="pr-4">
             <h1 className="text-2xl font-extrabold text-espau-navy">¡Hola! 👋</h1>
@@ -116,7 +121,6 @@ export default async function FamiliaMisActividades() {
           </form>
         </header>
 
-        {/* SECCIÓN PRINCIPAL: ¿Qué me toca hacer hoy?[cite: 1] */}
         <section>
           <div className="flex items-center justify-between mb-4 px-2">
             <h2 className="font-extrabold text-lg text-espau-navy">Tu plan para hoy</h2>
@@ -140,7 +144,6 @@ export default async function FamiliaMisActividades() {
           )}
         </section>
 
-        {/* SECCIÓN SECUNDARIA: Historial atenuado */}
         {completadas.length > 0 && (
           <section className="pt-4">
             <h2 className="font-bold text-gray-400 mb-4 px-2 uppercase tracking-wider text-xs">
@@ -154,7 +157,6 @@ export default async function FamiliaMisActividades() {
           </section>
         )}
 
-        {/* TEASER DE GAMIFICACIÓN: Futuras rachas y niveles[cite: 2] */}
         <div className="mt-8 bg-gradient-to-r from-espau-pink/10 to-espau-blue/10 p-5 rounded-3xl border border-white/50 text-center flex items-center justify-center gap-3 shadow-sm">
            <span className="text-2xl animate-bounce">⭐</span>
            <p className="text-espau-navy font-bold text-sm">
