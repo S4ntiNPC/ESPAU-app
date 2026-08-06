@@ -92,7 +92,7 @@ export default function CrearActividadPage() {
           <div>
             <label htmlFor="pregunta_validacion" className={labelClasses}>Pregunta de Validación para la Familia *</label>
             <p className="text-xs text-gray-500 mb-2 ml-1">
-              Esta pregunta aparecerá en la encuesta de salida cuando la familia termine la actividad[cite: 2].
+              Esta pregunta aparecerá en la encuesta de salida cuando la familia termine la actividad.
             </p>
             <input 
               type="text" 

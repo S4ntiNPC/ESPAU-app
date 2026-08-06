@@ -42,7 +42,7 @@ export default function AsignarPacienteForm({ terapeutas, familias }: Props) {
   return (
     <div className="bg-transparent p-1 sm:p-2">
       <p className="text-sm text-gray-500 mb-6 font-medium leading-relaxed">
-        Crea el expediente del menor y vincúlalo inmediatamente con su especialista y su apoyo en casa[cite: 2].
+        Crea el expediente del menor y vincúlalo inmediatamente con su especialista y su apoyo en casa.
       </p>
       
       <form ref={formRef} action={handleSubmit} className="space-y-5 sm:space-y-6">

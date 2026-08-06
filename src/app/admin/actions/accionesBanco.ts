@@ -30,7 +30,7 @@ export async function crearActividadBanco(formData: FormData) {
       explicacion,
       apoyos_visuales_url: apoyos_visuales_url || null,
       tips_extra: tips_extra || null,
-      pregunta_validacion: pregunta_validacion || null, // Configuración de la encuesta de salida[cite: 2]
+      pregunta_validacion: pregunta_validacion || null, 
       creado_por: user.id
     })
 
