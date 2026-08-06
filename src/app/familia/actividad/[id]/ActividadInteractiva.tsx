@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { ArrowLeft, Video, FileText, CheckCircle2 } from 'lucide-react'
+import { ArrowLeft, Video, FileText, CheckCircle2, Image as ImageIcon } from 'lucide-react'
 import { createClient } from '../../../../utils/supabase/client'
 import CargaEvidencia from './CargaEvidencia'
 import FormularioSalida from './FormularioSalida'
@@ -27,7 +27,7 @@ export default function ActividadInteractiva({ actividadId, instruccionesPersona
   const supabase = createClient()
   
   // Estados del flujo
-  const [paso, setPaso] = useState(1) // 1: Instrucciones, 2: Formulario y Evidencia, 3: Éxito
+  const [paso, setPaso] = useState(1) // 1: Instrucciones, 2: Evidencia/Formulario, 3: Éxito
   
   // Estado para la evidencia multimedia
   const [evidenciaFile, setEvidenciaFile] = useState<File | null>(null)
@@ -45,7 +45,6 @@ export default function ActividadInteractiva({ actividadId, instruccionesPersona
       let evidenciaUrl: string | null = null;
 
       // 1. Si el usuario adjuntó un archivo, lo subimos al Storage de Supabase
-      // (Asegúrate de crear un bucket llamado 'evidencias' en tu proyecto de Supabase)
       if (evidenciaFile) {
         const fileExt = evidenciaFile.name.split('.').pop();
         const fileName = `${actividadId}-${Date.now()}.${fileExt}`;
@@ -55,10 +54,9 @@ export default function ActividadInteractiva({ actividadId, instruccionesPersona
           .upload(fileName, evidenciaFile);
 
         if (uploadError) {
-          throw new Error('No se pudo subir el archivo de evidencia. Intenta de nuevo.');
+          throw new Error('No pudimos subir tu archivo. Por favor, verifica tu conexión a internet e intenta de nuevo.');
         }
 
-        // Obtenemos la URL pública del archivo subido
         const { data: publicUrlData } = supabase.storage
           .from('evidencias')
           .getPublicUrl(fileName);
@@ -66,7 +64,7 @@ export default function ActividadInteractiva({ actividadId, instruccionesPersona
         evidenciaUrl = publicUrlData.publicUrl;
       }
 
-      // 2. Actualizamos el registro de la actividad en la base de datos
+      // 2. Actualizamos el registro de la actividad
       const { error: updateError } = await supabase
         .from('actividades_asignadas')
         .update({ 
@@ -81,7 +79,7 @@ export default function ActividadInteractiva({ actividadId, instruccionesPersona
 
       if (updateError) throw new Error(updateError.message)
 
-      // 3. Si todo sale bien, pasamos a la pantalla de éxito
+      // 3. Pasamos a la pantalla de éxito
       setPaso(3)
       router.refresh() 
       
@@ -95,113 +93,160 @@ export default function ActividadInteractiva({ actividadId, instruccionesPersona
     }
   }
 
-  // PANTALLA 3: ÉXITO
+  // PANTALLA 3: ÉXITO (Diseño Emocional y Recompensante)
   if (paso === 3) {
     return (
-      <div className="min-h-screen bg-[#F4F7FF] flex flex-col items-center justify-center p-6 text-center">
-        <CheckCircle2 className="w-24 h-24 text-blue-600 mb-6 animate-bounce" />
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">¡Excelente trabajo!</h1>
-        <p className="text-gray-600 mb-8 max-w-sm">El terapeuta ha recibido tu actualización. Cada pequeño paso es un gran avance.</p>
-        <button 
-          onClick={() => router.push('/familia/mis-actividades')}
-          className="bg-blue-600 text-white px-8 py-4 rounded-xl font-medium hover:bg-blue-700 w-full max-w-xs transition-colors shadow-md"
-        >
-          Volver a mis actividades
-        </button>
+      <div className="min-h-screen flex flex-col items-center justify-center p-6 text-center bg-white">
+        <div className="w-full max-w-sm">
+          <div className="relative mb-8 flex justify-center">
+            <div className="absolute inset-0 bg-espau-blue/20 blur-2xl rounded-full scale-150 animate-pulse"></div>
+            <CheckCircle2 className="w-28 h-28 text-emerald-500 relative z-10 animate-bounce" />
+          </div>
+          <h1 className="text-3xl font-extrabold text-espau-navy mb-3">¡Excelente trabajo!</h1>
+          <p className="text-gray-500 mb-10 font-medium leading-relaxed">
+            Hemos guardado tu evidencia. Cada pequeño paso en casa es un gran avance en su desarrollo.
+          </p>
+          <button 
+            onClick={() => router.push('/familia/mis-actividades')}
+            className="w-full bg-espau-blue text-white py-4 rounded-2xl font-bold hover:bg-opacity-90 transition-all active:scale-[0.98] shadow-soft text-lg"
+          >
+            Volver a mi plan
+          </button>
+        </div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-24">
-      {/* Header fijo */}
-      <header className="bg-white sticky top-0 z-10 border-b border-gray-200 px-4 py-4 flex items-center gap-3 shadow-sm">
-        <button 
-          onClick={() => router.push('/familia/mis-actividades')} 
-          className="p-2 -ml-2 rounded-full hover:bg-gray-100 transition-colors"
-          aria-label="Volver"
-        >
-          <ArrowLeft className="w-6 h-6 text-gray-700" />
-        </button>
-        <h1 className="font-bold text-gray-900 truncate">Detalle de Actividad</h1>
+    <div className="min-h-screen flex flex-col font-sans">
+      {/* Header Mobile-First con indicador de progreso */}
+      <header className="bg-white sticky top-0 z-20 border-b border-gray-100 px-4 py-4 flex flex-col gap-3 shadow-sm">
+        <div className="flex items-center gap-3">
+          <button 
+            onClick={() => paso === 2 ? setPaso(1) : router.push('/familia/mis-actividades')} 
+            className="p-2 -ml-2 rounded-full hover:bg-gray-50 transition-colors text-espau-navy"
+            aria-label="Volver"
+          >
+            <ArrowLeft className="w-6 h-6" />
+          </button>
+          <h1 className="font-bold text-espau-navy truncate text-lg">Actividad de hoy</h1>
+        </div>
+        
+        {/* Barra de progreso visual */}
+        <div className="flex items-center gap-2 px-1">
+          <div className={`h-1.5 flex-1 rounded-full ${paso >= 1 ? 'bg-espau-blue' : 'bg-gray-100'} transition-colors duration-300`}></div>
+          <div className={`h-1.5 flex-1 rounded-full ${paso >= 2 ? 'bg-espau-blue' : 'bg-gray-100'} transition-colors duration-300`}></div>
+        </div>
+        <div className="flex justify-between px-1 text-[10px] font-bold uppercase tracking-wider text-gray-400">
+          <span className={paso >= 1 ? 'text-espau-blue' : ''}>Paso 1: Leer</span>
+          <span className={paso >= 2 ? 'text-espau-blue' : ''}>Paso 2: Evidencia</span>
+        </div>
       </header>
 
-      <main className="p-5 max-w-md mx-auto">
-        {/* PASO 1: Explicación */}
+      <main className="flex-1 p-4 sm:p-6 max-w-lg mx-auto w-full">
+        
+        {/* PASO 1: Instrucciones Claras y Empáticas */}
         {paso === 1 && (
-          <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4">
-            <div>
-              <span className="text-xs font-bold tracking-wider text-blue-600 uppercase">Instrucciones</span>
-              <h2 className="text-2xl font-bold text-gray-900 mt-1">{bancoInfo.titulo}</h2>
-              <p className="mt-3 text-gray-600 leading-relaxed whitespace-pre-wrap">{bancoInfo.explicacion}</p>
+          <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 pb-8">
+            
+            <div className="bg-white rounded-3xl p-6 sm:p-8 shadow-soft border border-white/50">
+              <span className="inline-block bg-espau-bgStart text-espau-blue text-xs font-bold px-3 py-1 rounded-lg uppercase tracking-wider mb-4">
+                Instrucciones
+              </span>
+              <h2 className="text-2xl font-extrabold text-espau-navy mb-4 leading-tight">
+                {bancoInfo.titulo}
+              </h2>
+              <p className="text-gray-600 leading-relaxed whitespace-pre-wrap font-medium">
+                {bancoInfo.explicacion}
+              </p>
             </div>
 
-            {/* Botón de Apoyo Visual */}
+            {/* Mensajes adicionales / Tips extra (Destacados visualmente) */}
+            {(bancoInfo.tips_extra || instruccionesPersonalizadas) && (
+              <div className="bg-espau-pink/10 border border-espau-pink/20 rounded-3xl p-6 shadow-sm relative overflow-hidden">
+                <div className="absolute top-0 right-0 p-4 opacity-10">
+                  <FileText className="w-24 h-24 text-espau-pink" />
+                </div>
+                <div className="flex items-center gap-2 mb-3 relative z-10">
+                  <span className="text-xl">💡</span>
+                  <h3 className="font-bold text-espau-navy">Notas de tu terapeuta</h3>
+                </div>
+                <div className="relative z-10 space-y-3">
+                  {instruccionesPersonalizadas && (
+                    <p className="text-sm text-gray-700 font-bold bg-white/60 p-3 rounded-xl">
+                      {instruccionesPersonalizadas}
+                    </p>
+                  )}
+                  {bancoInfo.tips_extra && (
+                    <p className="text-sm text-gray-600 font-medium">
+                      {bancoInfo.tips_extra}
+                    </p>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Botón de Apoyo Visual (Si existe) */}
             {bancoInfo.apoyos_visuales_url && (
               <a 
                 href={bancoInfo.apoyos_visuales_url} 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="flex items-center justify-center gap-2 w-full bg-blue-100 text-blue-700 py-3 px-4 rounded-xl font-semibold hover:bg-blue-200 transition-colors shadow-sm"
+                className="flex items-center justify-center gap-3 w-full bg-white border-2 border-espau-blue text-espau-blue py-4 px-4 rounded-2xl font-bold hover:bg-espau-bgStart transition-colors shadow-sm active:scale-[0.98]"
               >
-                <Video className="w-5 h-5" />
-                Ver apoyo visual
+                <Video className="w-6 h-6" />
+                Ver video de ejemplo
               </a>
             )}
 
-            {/* Mensajes adicionales / Tips extra */}
-            {(bancoInfo.tips_extra || instruccionesPersonalizadas) && (
-              <div className="bg-blue-50 border border-blue-100 rounded-2xl p-5">
-                <div className="flex items-center gap-2 mb-2">
-                  <FileText className="w-5 h-5 text-blue-600" />
-                  <h3 className="font-semibold text-blue-900">Mensaje del Terapeuta</h3>
-                </div>
-                {instruccionesPersonalizadas && (
-                  <p className="text-sm text-blue-800 mb-2 font-medium">{instruccionesPersonalizadas}</p>
-                )}
-                {bancoInfo.tips_extra && (
-                  <p className="text-sm text-blue-800 opacity-90">{bancoInfo.tips_extra}</p>
-                )}
-              </div>
-            )}
-
             <button 
-              onClick={() => setPaso(2)}
-              className="w-full bg-blue-600 text-white py-4 rounded-xl font-medium shadow-md shadow-blue-200 mt-8 hover:bg-blue-700 transition-colors"
+              onClick={() => {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                setPaso(2);
+              }}
+              className="w-full bg-espau-blue text-white py-4 rounded-2xl font-bold shadow-soft mt-8 hover:bg-opacity-90 transition-all active:scale-[0.98] text-lg flex items-center justify-center gap-2"
             >
-              Comenzar Actividad
+              ¡Entendido, vamos a hacerlo!
+              <ArrowLeft className="w-5 h-5 rotate-180" />
             </button>
           </div>
         )}
 
-        {/* PASO 2: Evidencia y Preguntas de Salida integradas */}
+        {/* PASO 2: Evidencia y Formulario de Salida */}
         {paso === 2 && (
-          <div className="space-y-8 animate-in fade-in slide-in-from-right-4 pt-2">
+          <div className="space-y-6 animate-in fade-in slide-in-from-right-4 pb-8 pt-2">
             
-            {/* Mensaje de error general si la subida/guardado falla */}
+            <div className="bg-espau-bgStart/50 p-5 rounded-2xl border border-espau-blue/10 mb-2">
+              <h3 className="font-bold text-espau-navy flex items-center gap-2">
+                <span>📸</span> Ahora, sube tu evidencia
+              </h3>
+              <p className="text-sm text-gray-500 mt-1 font-medium">
+                Un video corto o una foto nos ayuda muchísimo a ver su progreso.
+              </p>
+            </div>
+
             {error && (
-              <div className="bg-red-50 text-red-600 p-4 rounded-xl text-sm font-medium border border-red-100 flex items-start gap-2">
-                <svg className="w-5 h-5 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
+              <div className="bg-red-50 text-red-600 p-4 rounded-2xl text-sm font-bold border border-red-100 flex items-start gap-3 shadow-sm">
+                <span>⚠️</span>
                 <span>{error}</span>
               </div>
             )}
 
             {/* 1. Componente Modular de Carga de Evidencia */}
-            <CargaEvidencia onFileSelected={setEvidenciaFile} />
+            <div className="bg-white rounded-3xl shadow-soft p-1">
+               <CargaEvidencia onFileSelected={setEvidenciaFile} />
+            </div>
 
-            <div className="relative py-2">
-              <div className="absolute inset-0 flex items-center" aria-hidden="true">
-                <div className="w-full border-t border-gray-200"></div>
-              </div>
+            <div className="py-2 flex items-center gap-4">
+              <div className="h-px bg-gray-200 flex-1"></div>
+              <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">Casi terminamos</span>
+              <div className="h-px bg-gray-200 flex-1"></div>
             </div>
 
             {/* 2. Componente Modular de Preguntas (Incluye el botón final) */}
             <FormularioSalida 
               onSubmit={handleEnviarEvidencia}
               isSubmitting={guardando}
-              // NUEVO: Pasamos la pregunta específica de esta actividad
               preguntaValidacion={bancoInfo.pregunta_validacion}
             />
           </div>

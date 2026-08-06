@@ -33,14 +33,19 @@ export default function FormularioSalida({
     onSubmit(formData);
   };
 
-  const preguntaDinamica = preguntaValidacion || '¿Cómo le fue con este ejercicio?';
+  const preguntaDinamica = preguntaValidacion || '¿Cómo les fue con este ejercicio?';
+
+  // Clases utilitarias compartidas para inputs táctiles (Mobile-First)
+  const inputClasses = "w-full px-4 py-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-espau-blue focus:border-espau-blue outline-none transition-all text-base placeholder:text-gray-400 text-gray-700 disabled:opacity-60";
+  const labelClasses = "block text-sm sm:text-base font-bold text-espau-navy mb-2 flex items-center gap-2";
 
   return (
-    <form onSubmit={handleSubmit} className="w-full max-w-lg mx-auto space-y-6">
+    <form onSubmit={handleSubmit} className="w-full max-w-lg mx-auto space-y-5">
       
-      <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm">
-        <label htmlFor="quienRealizo" className="block text-gray-800 font-semibold mb-2">
-          ¿Quién apoyó en esta actividad? *
+      {/* Pregunta 1: ¿Quién eres? (Requerimiento estricto) */}
+      <div className="bg-white p-5 sm:p-6 rounded-3xl border border-gray-100 shadow-sm">
+        <label htmlFor="quienRealizo" className={labelClasses}>
+          <span className="text-xl">🦸‍♀️</span> ¿Quién apoyó en esta actividad? <span className="text-red-500">*</span>
         </label>
         <select
           id="quienRealizo"
@@ -48,7 +53,8 @@ export default function FormularioSalida({
           required
           value={formData.quienRealizo}
           onChange={handleChange}
-          className="w-full p-3 border border-gray-300 rounded-lg bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+          className={`${inputClasses} cursor-pointer`}
+          disabled={isSubmitting}
         >
           <option value="" disabled>Selecciona una opción...</option>
           <option value="madre">Mamá</option>
@@ -60,26 +66,35 @@ export default function FormularioSalida({
         </select>
       </div>
 
-      <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm">
-        <label htmlFor="comoSeSintio" className="block text-gray-800 font-semibold mb-2">
-          ¿Cómo se sintieron durante el ejercicio? *
+      {/* Pregunta 2: ¿Cómo te sentiste? (Requerimiento estricto)[cite: 2] */}
+      <div className="bg-white p-5 sm:p-6 rounded-3xl border border-gray-100 shadow-sm">
+        <label htmlFor="comoSeSintio" className={labelClasses}>
+          <span className="text-xl">💭</span> ¿Cómo se sintieron durante el ejercicio? <span className="text-red-500">*</span>
         </label>
+        <p className="text-xs text-gray-500 mb-3 ml-1 font-medium">
+          Cuéntanos si hubo frustración, si fue divertido, o si notaste algún avance.
+        </p>
         <textarea
           id="comoSeSintio"
           name="comoSeSintio"
           required
           rows={3}
-          placeholder="Ej: Nos costó un poco al principio, pero luego lo logró..."
+          placeholder="Ej: Nos costó un poco al principio, pero luego lo logró muy bien..."
           value={formData.comoSeSintio}
           onChange={handleChange}
-          className="w-full p-3 border border-gray-300 rounded-lg bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all resize-none"
+          className={`${inputClasses} resize-none min-h-[100px]`}
+          disabled={isSubmitting}
         />
       </div>
 
-      <div className="bg-[#F4F7FF] p-5 rounded-xl border border-blue-100 shadow-sm">
-        <label htmlFor="validacion" className="block text-[#1E3A8A] font-semibold mb-3">
-          {preguntaDinamica} *
+      {/* Pregunta 3: Validación basada en el ejercicio (Requerimiento estricto)[cite: 2] */}
+      <div className="bg-espau-bgStart/30 p-5 sm:p-6 rounded-3xl border border-espau-blue/20 shadow-sm">
+        <label htmlFor="validacion" className={`${labelClasses} text-espau-blue`}>
+          <span className="text-xl">🎯</span> {preguntaDinamica} <span className="text-espau-pink">*</span>
         </label>
+        <p className="text-xs text-gray-500 mb-3 ml-1 font-medium">
+          Esta pregunta nos ayuda a saber cómo adaptar la próxima terapia.
+        </p>
         <textarea
           id="validacion"
           name="validacion"
@@ -88,26 +103,36 @@ export default function FormularioSalida({
           placeholder="Escribe tu respuesta aquí..."
           value={formData.validacion}
           onChange={handleChange}
-          className="w-full p-3 border border-blue-200 rounded-lg bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all resize-none text-gray-700"
+          className={`${inputClasses} resize-none min-h-[100px] bg-white`}
+          disabled={isSubmitting}
         />
       </div>
 
-      <button
-        type="submit"
-        disabled={isSubmitting}
-        className="w-full flex items-center justify-center gap-2 bg-[#2563EB] hover:bg-blue-700 text-white font-medium py-4 px-6 rounded-xl transition-colors disabled:opacity-70 disabled:cursor-not-allowed shadow-md"
-      >
-        {isSubmitting ? (
-          <span>Enviando...</span>
-        ) : (
-          <>
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
-            </svg>
-            Enviar y Finalizar
-          </>
-        )}
-      </button>
+      {/* Botón de Envío: Grande y claro para finalizar el flujo */}
+      <div className="pt-2">
+        <button
+          type="submit"
+          disabled={isSubmitting}
+          className="w-full flex items-center justify-center gap-2 bg-espau-blue hover:bg-opacity-90 text-white font-bold py-4 px-6 rounded-2xl transition-all disabled:opacity-70 disabled:cursor-not-allowed shadow-md active:scale-[0.98]"
+        >
+          {isSubmitting ? (
+            <>
+              <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              Enviando evidencia...
+            </>
+          ) : (
+            <>
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+              </svg>
+              Enviar y Finalizar
+            </>
+          )}
+        </button>
+      </div>
     </form>
   );
 }

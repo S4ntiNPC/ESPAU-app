@@ -41,7 +41,7 @@ export default function DirectorioPacientes({
   const [editingPaciente, setEditingPaciente] = useState<PacienteAdmin | null>(null);
   const [editForm, setEditForm] = useState({ nombre: '', fecha_nacimiento: '' });
 
-  // Estados para Modal de Gestión de Vínculos
+  // Estados para Modal de Gestión de Vínculos[cite: 2]
   const [linkingPaciente, setLinkingPaciente] = useState<PacienteAdmin | null>(null);
   const [linkForm, setLinkForm] = useState({ terapeuta_id: '', familia_id: '' });
 
@@ -112,114 +112,136 @@ export default function DirectorioPacientes({
     setIsProcessing(false);
   };
 
+  // Clases compartidas para consistencia visual y accesibilidad táctil
+  const inputClasses = "w-full px-4 py-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-espau-blue focus:border-espau-blue outline-none transition-all text-base";
+  const labelClasses = "block text-sm font-bold text-espau-navy mb-1.5 ml-1";
+
   return (
-    <div className="bg-white/80 backdrop-blur-md rounded-3xl shadow-sm border border-white p-6 md:p-8 relative">
-      <div className="flex justify-between items-center mb-6">
+    <div className="bg-white rounded-3xl shadow-soft border border-white/50 p-6 md:p-8 relative">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-2">
         <div>
-          <h2 className="text-xl font-bold text-espau-navy">Directorio de Pacientes</h2>
-          <p className="text-sm text-gray-500">Listado general y enlaces activos de terapia.</p>
+          <h2 className="text-xl sm:text-2xl font-bold text-espau-navy">Directorio de Pacientes</h2>
+          <p className="text-sm text-gray-500 font-medium mt-1">
+            Listado general, gestión de expedientes y asignaciones activas[cite: 2].
+          </p>
         </div>
       </div>
 
-      <div className="overflow-x-auto">
-        <table className="w-full text-left border-collapse min-w-[700px]">
-          <thead>
-            <tr className="border-b-2 border-gray-100 text-xs uppercase tracking-wider text-gray-400 font-semibold">
-              <th className="pb-3 px-4">Paciente</th>
-              <th className="pb-3 px-4">Edad</th>
-              <th className="pb-3 px-4">Terapeuta Asignado</th>
-              <th className="pb-3 px-4">Cuidador (Familia)</th>
-              <th className="pb-3 px-4 text-right">Acciones</th>
-            </tr>
-          </thead>
-          <tbody className="text-sm text-gray-600">
-            {pacientes.length === 0 ? (
+      {/* Contenedor de la Tabla (Responsive Degradation) */}
+      <div className="w-full overflow-hidden rounded-2xl border border-gray-100">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left border-collapse min-w-[800px]">
+            <thead className="text-xs text-espau-navy uppercase tracking-wider bg-espau-bgStart/50 border-b border-espau-blue/10">
               <tr>
-                <td colSpan={5} className="py-8 text-center text-gray-400 bg-gray-50/50 rounded-xl">
-                  No hay pacientes activos registrados en el sistema.
-                </td>
+                <th className="py-4 px-5 font-bold">Paciente</th>
+                <th className="py-4 px-5 font-bold">Edad</th>
+                <th className="py-4 px-5 font-bold">Terapeuta Asignado</th>
+                <th className="py-4 px-5 font-bold">Cuidador (Familia)</th>
+                <th className="py-4 px-5 font-bold text-right">Acciones</th>
               </tr>
-            ) : (
-              pacientes.map((paciente) => (
-                <tr key={paciente.id} className="border-b border-gray-50 hover:bg-white transition-colors">
-                  <td className="py-4 px-4 font-bold text-espau-navy">{paciente.nombre}</td>
-                  <td className="py-4 px-4">{calcularEdad(paciente.fecha_nacimiento)} años</td>
-                  <td className="py-4 px-4">
-                    {paciente.terapeuta ? (
-                      <span className="bg-espau-bgStart text-espau-blue px-3 py-1.5 rounded-full text-xs font-medium border border-blue-100">
-                        {paciente.terapeuta.nombre} {paciente.terapeuta.apellidos || ''}
-                      </span>
-                    ) : (
-                      <span className="text-gray-400 italic text-xs">Sin asignar</span>
-                    )}
-                  </td>
-                  <td className="py-4 px-4">
-                    {paciente.familia ? (
-                      <span className="bg-espau-bgEnd text-espau-pink px-3 py-1.5 rounded-full text-xs font-medium border border-pink-100">
-                        {paciente.familia.nombre} {paciente.familia.apellidos || ''}
-                      </span>
-                    ) : (
-                      <span className="text-gray-400 italic text-xs">Sin asignar</span>
-                    )}
-                  </td>
-                  <td className="py-4 px-4 text-right space-x-3">
-                    <button 
-                      onClick={() => abrirModalEdicion(paciente)}
-                      disabled={isProcessing}
-                      className="text-espau-blue hover:text-blue-800 font-medium text-xs transition-colors disabled:opacity-50"
-                    >
-                      Editar
-                    </button>
-                    <button 
-                      onClick={() => abrirModalVinculos(paciente)}
-                      disabled={isProcessing}
-                      className="text-orange-500 hover:text-orange-700 font-medium text-xs transition-colors disabled:opacity-50"
-                    >
-                      Vínculos
-                    </button>
-                    <button 
-                      onClick={() => handleEliminar(paciente.id)}
-                      disabled={isProcessing}
-                      className="text-red-500 hover:text-red-700 font-medium text-xs transition-colors disabled:opacity-50"
-                    >
-                      Eliminar
-                    </button>
+            </thead>
+            <tbody className="text-sm text-gray-600 divide-y divide-gray-50">
+              {pacientes.length === 0 ? (
+                <tr>
+                  <td colSpan={5} className="py-12 text-center text-gray-400 bg-gray-50/50">
+                    <span className="text-3xl block mb-2">📁</span>
+                    No hay pacientes activos registrados en el sistema.
                   </td>
                 </tr>
-              ))
-            )}
-          </tbody>
-        </table>
+              ) : (
+                pacientes.map((paciente) => (
+                  <tr key={paciente.id} className="hover:bg-gray-50/50 transition-colors group">
+                    <td className="py-4 px-5 font-bold text-espau-navy">{paciente.nombre}</td>
+                    <td className="py-4 px-5 font-medium">{calcularEdad(paciente.fecha_nacimiento)} años</td>
+                    <td className="py-4 px-5">
+                      {paciente.terapeuta ? (
+                        <span className="bg-espau-bgStart/80 text-espau-blue px-3 py-1.5 rounded-lg text-xs font-bold border border-espau-blue/20">
+                          {paciente.terapeuta.nombre} {paciente.terapeuta.apellidos || ''}
+                        </span>
+                      ) : (
+                        <span className="text-gray-400 italic text-xs font-medium bg-gray-100 px-3 py-1.5 rounded-lg">Sin asignar</span>
+                      )}
+                    </td>
+                    <td className="py-4 px-5">
+                      {paciente.familia ? (
+                        <span className="bg-espau-pink/10 text-espau-pink px-3 py-1.5 rounded-lg text-xs font-bold border border-espau-pink/20">
+                          {paciente.familia.nombre} {paciente.familia.apellidos || ''}
+                        </span>
+                      ) : (
+                        <span className="text-gray-400 italic text-xs font-medium bg-gray-100 px-3 py-1.5 rounded-lg">Sin asignar</span>
+                      )}
+                    </td>
+                    <td className="py-4 px-5 text-right space-x-2">
+                      <button 
+                        onClick={() => abrirModalEdicion(paciente)}
+                        disabled={isProcessing}
+                        className="text-espau-blue bg-espau-blue/5 hover:bg-espau-blue/10 px-3 py-1.5 rounded-lg font-bold text-xs transition-colors disabled:opacity-50"
+                      >
+                        Editar
+                      </button>
+                      <button 
+                        onClick={() => abrirModalVinculos(paciente)}
+                        disabled={isProcessing}
+                        className="text-amber-600 bg-amber-50 hover:bg-amber-100 px-3 py-1.5 rounded-lg font-bold text-xs transition-colors disabled:opacity-50"
+                      >
+                        Vínculos
+                      </button>
+                      <button 
+                        onClick={() => handleEliminar(paciente.id)}
+                        disabled={isProcessing}
+                        className="text-red-500 bg-red-50 hover:bg-red-100 px-3 py-1.5 rounded-lg font-bold text-xs transition-colors disabled:opacity-50 opacity-0 group-hover:opacity-100"
+                      >
+                        Eliminar
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
 
       {/* --- MODAL MVP DE EDICIÓN --- */}
       {editingPaciente && (
-        <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-3xl p-6 md:p-8 w-full max-w-md shadow-xl border border-gray-100">
-            <h3 className="text-xl font-bold text-espau-navy mb-4">Editar Paciente</h3>
-            <div className="space-y-4 mb-6">
+        <div className="fixed inset-0 bg-espau-navy/40 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-in fade-in duration-200">
+          <div className="bg-white rounded-3xl p-6 sm:p-8 w-full max-w-md shadow-2xl border border-white/50 animate-in zoom-in-95 duration-200">
+            <h3 className="text-2xl font-extrabold text-espau-navy mb-6">Editar Paciente</h3>
+            
+            <div className="space-y-5 mb-8">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Nombre Completo</label>
+                <label className={labelClasses}>Nombre Completo</label>
                 <input 
                   type="text" 
                   value={editForm.nombre}
                   onChange={(e) => setEditForm({...editForm, nombre: e.target.value})}
-                  className="w-full border border-gray-300 rounded-xl p-3 outline-none focus:ring-2 focus:ring-espau-blue"
+                  className={inputClasses}
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Fecha de Nacimiento</label>
+                <label className={labelClasses}>Fecha de Nacimiento</label>
                 <input 
                   type="date" 
                   value={editForm.fecha_nacimiento}
                   onChange={(e) => setEditForm({...editForm, fecha_nacimiento: e.target.value})}
-                  className="w-full border border-gray-300 rounded-xl p-3 outline-none focus:ring-2 focus:ring-espau-blue"
+                  className={inputClasses}
                 />
               </div>
             </div>
-            <div className="flex gap-3 justify-end">
-              <button onClick={() => setEditingPaciente(null)} disabled={isProcessing} className="px-5 py-2 text-gray-600 font-medium hover:bg-gray-100 rounded-full transition-colors">Cancelar</button>
-              <button onClick={guardarEdicion} disabled={isProcessing} className="px-5 py-2 bg-espau-blue hover:bg-blue-600 text-white font-semibold rounded-full transition-colors shadow-md shadow-blue-200">
+            
+            <div className="flex flex-col-reverse sm:flex-row gap-3 justify-end">
+              <button 
+                onClick={() => setEditingPaciente(null)} 
+                disabled={isProcessing} 
+                className="w-full sm:w-auto px-6 py-3.5 text-gray-600 font-bold bg-gray-100 hover:bg-gray-200 rounded-xl transition-colors active:scale-[0.98]"
+              >
+                Cancelar
+              </button>
+              <button 
+                onClick={guardarEdicion} 
+                disabled={isProcessing} 
+                className="w-full sm:w-auto px-6 py-3.5 bg-espau-blue hover:bg-opacity-90 text-white font-bold rounded-xl transition-all shadow-sm active:scale-[0.98] disabled:opacity-70 flex items-center justify-center"
+              >
                 {isProcessing ? 'Guardando...' : 'Guardar Cambios'}
               </button>
             </div>
@@ -229,18 +251,20 @@ export default function DirectorioPacientes({
 
       {/* --- MODAL MVP DE GESTIÓN DE VÍNCULOS --- */}
       {linkingPaciente && (
-        <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-3xl p-6 md:p-8 w-full max-w-md shadow-xl border border-gray-100">
-            <h3 className="text-xl font-bold text-espau-navy mb-1">Gestionar Vínculos</h3>
-            <p className="text-sm text-gray-500 mb-6">Asigna o desvincula responsables para <strong>{linkingPaciente.nombre}</strong>.</p>
+        <div className="fixed inset-0 bg-espau-navy/40 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-in fade-in duration-200">
+          <div className="bg-white rounded-3xl p-6 sm:p-8 w-full max-w-md shadow-2xl border border-white/50 animate-in zoom-in-95 duration-200">
+            <h3 className="text-2xl font-extrabold text-espau-navy mb-2">Gestionar Vínculos</h3>
+            <p className="text-sm text-gray-500 mb-6 font-medium leading-relaxed">
+              Asigna o desvincula responsables para el expediente de <strong className="text-espau-pink">{linkingPaciente.nombre}</strong>.
+            </p>
             
-            <div className="space-y-4 mb-6">
+            <div className="space-y-5 mb-8">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Terapeuta Asignado</label>
+                <label className={labelClasses}>Terapeuta Asignado</label>
                 <select 
                   value={linkForm.terapeuta_id}
                   onChange={(e) => setLinkForm({...linkForm, terapeuta_id: e.target.value})}
-                  className="w-full border border-gray-300 rounded-xl p-3 outline-none focus:ring-2 focus:ring-espau-blue bg-white"
+                  className={`${inputClasses} cursor-pointer`}
                 >
                   <option value="">Ninguno / Desvincular</option>
                   {terapeutas.map(t => (
@@ -250,11 +274,11 @@ export default function DirectorioPacientes({
               </div>
               
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Cuidador (Familia)</label>
+                <label className={labelClasses}>Cuidador Principal (Familia)</label>
                 <select 
                   value={linkForm.familia_id}
                   onChange={(e) => setLinkForm({...linkForm, familia_id: e.target.value})}
-                  className="w-full border border-gray-300 rounded-xl p-3 outline-none focus:ring-2 focus:ring-espau-blue bg-white"
+                  className={`${inputClasses} cursor-pointer`}
                 >
                   <option value="">Ninguno / Desvincular</option>
                   {familias.map(f => (
@@ -264,9 +288,19 @@ export default function DirectorioPacientes({
               </div>
             </div>
 
-            <div className="flex gap-3 justify-end">
-              <button onClick={() => setLinkingPaciente(null)} disabled={isProcessing} className="px-5 py-2 text-gray-600 font-medium hover:bg-gray-100 rounded-full transition-colors">Cancelar</button>
-              <button onClick={guardarVinculos} disabled={isProcessing} className="px-5 py-2 bg-orange-500 hover:bg-orange-600 text-white font-semibold rounded-full transition-colors shadow-md shadow-orange-200">
+            <div className="flex flex-col-reverse sm:flex-row gap-3 justify-end">
+              <button 
+                onClick={() => setLinkingPaciente(null)} 
+                disabled={isProcessing} 
+                className="w-full sm:w-auto px-6 py-3.5 text-gray-600 font-bold bg-gray-100 hover:bg-gray-200 rounded-xl transition-colors active:scale-[0.98]"
+              >
+                Cancelar
+              </button>
+              <button 
+                onClick={guardarVinculos} 
+                disabled={isProcessing} 
+                className="w-full sm:w-auto px-6 py-3.5 bg-amber-500 hover:bg-amber-600 text-white font-bold rounded-xl transition-all shadow-sm active:scale-[0.98] disabled:opacity-70 flex items-center justify-center"
+              >
                 {isProcessing ? 'Guardando...' : 'Actualizar Vínculos'}
               </button>
             </div>
