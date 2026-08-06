@@ -155,24 +155,23 @@ export default function DirectorioPacientes({
                     <td className="py-4 px-5 font-medium">{calcularEdad(paciente.fecha_nacimiento)} años</td>
                     <td className="py-4 px-5">
                       {paciente.terapeuta ? (
-                        <span className="bg-espau-bgStart/80 text-espau-blue px-3 py-1.5 rounded-lg text-xs font-bold border border-espau-blue/20">
+                        <span className="inline-block bg-espau-bgStart/80 text-espau-blue px-3 py-1.5 rounded-lg text-xs font-bold border border-espau-blue/20">
                           {paciente.terapeuta.nombre} {paciente.terapeuta.apellidos || ''}
                         </span>
                       ) : (
-                        <span className="text-gray-400 italic text-xs font-medium bg-gray-100 px-3 py-1.5 rounded-lg">Sin asignar</span>
+                        <span className="inline-block text-gray-400 italic text-xs font-medium bg-gray-100 px-3 py-1.5 rounded-lg">Sin asignar</span>
                       )}
                     </td>
                     <td className="py-4 px-5">
                       {paciente.familia ? (
-                        <span className="bg-espau-pink/10 text-espau-pink px-3 py-1.5 rounded-lg text-xs font-bold border border-espau-pink/20">
+                        <span className="inline-block bg-espau-pink/10 text-espau-pink px-3 py-1.5 rounded-lg text-xs font-bold border border-espau-pink/20">
                           {paciente.familia.nombre} {paciente.familia.apellidos || ''}
                         </span>
                       ) : (
-                        <span className="text-gray-400 italic text-xs font-medium bg-gray-100 px-3 py-1.5 rounded-lg">Sin asignar</span>
+                        <span className="inline-block text-gray-400 italic text-xs font-medium bg-gray-100 px-3 py-1.5 rounded-lg">Sin asignar</span>
                       )}
                     </td>
                     <td className="py-4 px-5">
-                      {/* Contenedor flexible para evitar que los botones se empalmen en pantallas pequeñas */}
                       <div className="flex flex-wrap justify-end gap-2">
                         <button 
                           onClick={() => abrirModalEdicion(paciente)}
@@ -188,7 +187,6 @@ export default function DirectorioPacientes({
                         >
                           Vínculos
                         </button>
-                        {/* Botón de eliminar visible siempre y funcional en dispositivos táctiles */}
                         <button 
                           onClick={() => handleEliminar(paciente.id)}
                           disabled={isProcessing}
